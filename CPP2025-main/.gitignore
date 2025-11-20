@@ -1,0 +1,12 @@
+# .gitignore - C++ project
+
+# object files
+*.o
+Test*.o
+
+# common editor/IDE files
+.vscode/*
+.idea/
+*.swp
+*~
+.DS_Store
