@@ -1,31 +1,36 @@
 #include <stdio.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <string.h>
+#include "LibSer.h"
+#include "Requete.h"
 
-#define RCVBUFSIZE 32
+#define RCVBUFSIZE 32   /* Size of receive buffer */
 
 void HandleTCPClient(int clntSocket)
 {
-    char echoBuffer[RCVBUFSIZE];
     int recvMsgSize;
+    struct Requete UneRequete;
 
-    if ((recvMsgSize = recv(clntSocket, echoBuffer, RCVBUFSIZE, 0)) < 0)
+    /* Boucle de réception des messages */
+    while ((recvMsgSize = recv(clntSocket, &UneRequete, sizeof(UneRequete), 0)) > 0)
     {
-        fprintf(stderr, "recv() failed\n");
+        printf("Bytes received: %d\n", recvMsgSize);
+        printf("#%s\n", UneRequete.Chaine);
+
+        /* Renvoi des données au client */
+        int sentBytes = send(clntSocket, &UneRequete, recvMsgSize, 0);
+        if (sentBytes != recvMsgSize)
+            DieWithError("send() failed");
+
+        printf("Bytes sent: %d\n", sentBytes);
     }
 
-    while (recvMsgSize > 0)
-    {
-        if (send(clntSocket, echoBuffer, recvMsgSize, 0) != recvMsgSize)
-        {
-            fprintf(stderr, "send() failed\n");
-        }
+    /* Connexion fermée par le client */
+    if (recvMsgSize < 0)
+        DieWithError("recv() failed");
 
-        if ((recvMsgSize = recv(clntSocket, echoBuffer, RCVBUFSIZE, 0)) < 0)
-        {
-            fprintf(stderr, "recv() failed\n");
-        }
-    }
-
+    printf("Bytes received: 0\n");
+    printf("Connexion Closed\n");
     close(clntSocket);
 }

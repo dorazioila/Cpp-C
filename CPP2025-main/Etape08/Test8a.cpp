@@ -2,7 +2,7 @@
 #include "Garage.h"
 
 using namespace std;
-
+using namespace carconfig;
 int main()
 {
   // Creation du Garage

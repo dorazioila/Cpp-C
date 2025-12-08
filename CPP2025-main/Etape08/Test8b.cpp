@@ -1,6 +1,6 @@
 #include <iostream>
 #include "Garage.h"
-
+using namespace carconfig;
 using namespace std;
 
 int main()

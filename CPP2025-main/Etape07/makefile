@@ -1,10 +1,10 @@
 all: Test7
 
 Test7: Test7.o Exception.o OptionException.o PasswordException.o Option.o Car.o Model.o Employee.o Person.o Actor.o Client.o
-	g++ -o Test6 Test6.o Exception.o OptionException.o PasswordException.o Option.o Car.o Model.o Employee.o Person.o Actor.o Client.o -g
+	g++ -o Test7 Test7.o Exception.o OptionException.o PasswordException.o Option.o Car.o Model.o Employee.o Person.o Actor.o Client.o -g
 
-Test7.o: Test7.cpp
-	g++ -c Test6.cpp
+Test7.o: Test7.cpp XmlFileSerializer.hpp XmlFileSerializer.ipp
+	g++ -c Test7.cpp
 
 Exception.o: Exception.cpp Exception.h
 	g++ -c Exception.cpp

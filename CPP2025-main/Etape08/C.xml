@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Car>
+<name>
+Projet_208_MrLagalere
+</name>
+<model>
+<Model>
+<name>
+208 Access 1.0
+</name>
+<power>
+68
+</power>
+<engine>
+essence
+</engine>
+<basePrice>
+12500
+</basePrice>
+</Model>
+</model>
+<options>
+<Option>
+<code>
+0MM0
+</code>
+<label>
+Peinture metallisee
+</label>
+<price>
+450
+</price>
+</Option>
+<Option>
+<code>
+ZH75
+</code>
+<label>
+Jante alliage leger 15 pouces
+</label>
+<price>
+450
+</price>
+</Option>
+<Option>
+<code>
+UB01
+</code>
+<label>
+Detecteur obstacles arriere
+</label>
+<price>
+250
+</price>
+</Option>
+</options>
+</Car>
+

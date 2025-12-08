@@ -1,74 +1,62 @@
-#include <stdio.h>      /* for printf() and fprintf() */
-#include <sys/socket.h> /* for socket(), bind(), and connect() */
-#include <arpa/inet.h>  /* for sockaddr_in and inet_ntoa() */
-#include <stdlib.h>     /* for atoi() and exit() */
-#include <string.h>     /* for memset() */
-#include <unistd.h>     /* for close() */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
 
-#define MAXPENDING 5    /* Maximum outstanding connection requests */
+#define MAXPENDING 5
 
-#include "LibSer.h"  	/* Error handling function */
-#include "HandleTCPClient.h"   /* TCP client handling function */
+#include "LibSer.h"
+#include "HandleTCPClient.h"
 
 int main(int argc, char *argv[])
 {
-    int servSock;                    /* Socket descriptor for server */
-    int clntSock;                    /* Socket descriptor for client */
-    struct sockaddr_in echoServAddr; /* Local address */
-    struct sockaddr_in echoClntAddr; /* Client address */
-    unsigned short echoServPort;     /* Server port */
-    unsigned int clntLen;            /* Length of client address data structure */
+    int servSock, clntSock;
+    struct sockaddr_in echoServAddr, echoClntAddr;
+    unsigned short echoServPort;
+    unsigned int clntLen;
 
-    if (argc != 2)     /* Test for correct number of arguments */
-    {
-        fprintf(stderr, "Usage:  %s <Server Port>\n", argv[0]);
+    if (argc != 3) {
+        fprintf(stderr, "Usage: %s <IP> <Port>\n", argv[0]);
         exit(1);
     }
 
-    echoServPort = atoi(argv[1]);  /* First arg:  local port */
+    char *ip = argv[1];
+    echoServPort = atoi(argv[2]);
 
     /* Create socket for incoming connections */
     if ((servSock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
         DieWithError("socket() failed");
-    else
-       printf("socket() Ok\n") ;
-      
+    printf("socket() Ok\n");
+
     /* Construct local address structure */
-    memset(&echoServAddr, 0, sizeof(echoServAddr));   /* Zero out structure */
-    echoServAddr.sin_family = AF_INET;                /* Internet address family */
-    echoServAddr.sin_addr.s_addr = htonl(INADDR_ANY); /* Any incoming interface */
-    echoServAddr.sin_port = htons(echoServPort);      /* Local port */
+    memset(&echoServAddr, 0, sizeof(echoServAddr));
+    echoServAddr.sin_family = AF_INET;
+    echoServAddr.sin_addr.s_addr = inet_addr(ip);  // use IP from argument
+    echoServAddr.sin_port = htons(echoServPort);   // use port from argument
 
     /* Bind to the local address */
-    if (bind(servSock, (struct sockaddr *) &echoServAddr, sizeof(echoServAddr)) < 0)
+    if (bind(servSock, (struct sockaddr *)&echoServAddr, sizeof(echoServAddr)) < 0)
         DieWithError("bind() failed");
-    else
-       printf("bind() Ok\n") ;    
+    printf("bind() Ok\n");
 
-    /* Mark the socket so it will listen for incoming connections */
+    /* Listen for incoming connections */
     if (listen(servSock, MAXPENDING) < 0)
         DieWithError("listen() failed");
-    else
-       printf("listen() Ok\n") ;     
+    printf("listen() Ok\n");
 
-    for (;;) /* Run forever */
-    {
-        /* Set the size of the in-out parameter */
+    for (;;) {
         clntLen = sizeof(echoClntAddr);
-
-        /* Wait for a client to connect */
-        if ((clntSock = accept(servSock, (struct sockaddr *) &echoClntAddr, 
-                               &clntLen)) < 0)
+        if ((clntSock = accept(servSock, (struct sockaddr *)&echoClntAddr, &clntLen)) < 0)
             DieWithError("accept() failed");
-        else
-           printf("accept() Ok\n") ;     
+        printf("accept() Ok\n");
 
-
-        /* clntSock is connected to a client! */
-
+        printf("### Le Serveur\n");
         printf("Handling client %s\n", inet_ntoa(echoClntAddr.sin_addr));
 
         HandleTCPClient(clntSock);
     }
-    /* NOT REACHED */
+
+    return 0;
 }
