@@ -41,6 +41,48 @@ int RechercheHV(char* NomFichier, int Reference,struct VehiculeHV *UnRecord)
     
 }
 
+int AchatHV(char *NomFichier, int Reference, int Quantite)
+{
+    int fd = open(NomFichier, O_RDWR);
+    struct VehiculeHV V;
+    if (fd == -1) return -1;
+
+    while (read(fd, &V, sizeof(V)) == sizeof(V)) {
+        if (V.Reference == Reference && V.Supprime == 0) {
+            if (V.Quantite < Quantite) {
+                close(fd);
+                return 0; // pas assez de stock
+            }
+            V.Quantite -= Quantite;
+            lseek(fd, -sizeof(V), SEEK_CUR);
+            write(fd, &V, sizeof(V));
+            close(fd);
+            return 1;
+        }
+    }
+    close(fd);
+    return 0;
+}
+
+int LivraisonHV(char *NomFichier, int Reference, int Quantite)
+{
+    int fd = open(NomFichier, O_RDWR);
+    struct VehiculeHV V;
+    if (fd == -1) return -1;
+
+    while (read(fd, &V, sizeof(V)) == sizeof(V)) {
+        if (V.Reference == Reference && V.Supprime == 0) {
+            V.Quantite += Quantite;
+            lseek(fd, -sizeof(V), SEEK_CUR);
+            write(fd, &V, sizeof(V));
+            close(fd);
+            return 1;
+        }
+    }
+    close(fd);
+    return 0;
+}
+
 void DieWithError(char*errorMessage){
     printf("erreur message : %s \n",errorMessage);
 }
