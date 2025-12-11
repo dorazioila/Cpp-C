@@ -1,0 +1,25 @@
+# ------------------------------------------------------------------
+vanstapel@vanstap2:~/TCPIP/Step2 IA$ ./TCPEchoServer 1300
+socket() Ok
+bind() Ok
+listen() Ok
+accept() Ok
+# -------------------------------------------------------------------
+vanstapel@vanstap2:~/TCPIP/Step2 IA$ ./TCPEchoClient 0.0.0.0 1300
+Entrez une référence:1
+Received:
+#--------------------------------------------------------------------
+Handling client 127.0.0.1
+>TypeRequete 1 
+>Reference 0 
+>NumeroFacture 0 
+>Date 0 
+>Reference 1 
+>Places 0 
+>Prix 0 
+>Constructeur  
+>Modele  
+>Client  
+
+Connexion Closed
+
