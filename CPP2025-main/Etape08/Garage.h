@@ -10,19 +10,31 @@
 #include "Employee.h"
 #include "Model.h"
 #include "Option.h"
+#include "Car.h"  
 
 class Garage
 {
 private:
-    std::set<Client> clients;      // pour les clients
-    std::set<Employee> employees;  // pour les employés
+    std::set<Client> clients;
+    std::set<Employee> employees;
     std::list<carconfig::Model> models;
     std::list<carconfig::Option> options;
+    
+    // SINGLETON CORRIGÉ
+    static Garage instance;
+    static carconfig::Car currentProject;  // ← STATIC + NAMESPACE
+    
+
+    Garage(const Garage&) = delete;
+    Garage& operator=(const Garage&) = delete;
 
 public:
-    Garage() = default;
-    ~Garage() = default;
-    Project currentProject;
+    ~Garage() = default;  // OK public
+     Garage() = default;
+    static Garage& getInstance();
+    static carconfig::Car& getCurrentProject();
+    static void resetCurrentProject();
+    
     // Models
     void addModel(const carconfig::Model& m);
     void displayAllModels() const;
@@ -31,7 +43,7 @@ public:
     // Options
     void addOption(const carconfig::Option& o);
     void displayAllOptions() const;
-    carconfig::Option getOption(int index);
+    carconfig::Option getOption(int index) const;  // ← const ajouté
 
     // Clients
     int addClient(const std::string& ln, const std::string& fn, const std::string& gsm);
@@ -48,10 +60,6 @@ public:
     void deleteEmployeeById(int id);
     Employee findEmployeeByIndex(int index) const;
     Employee findEmployeeById(int id) const;
-    static Garage& getInstance() {
-        static Garage instance;
-        return instance;
-    }
 };
 
 #endif

@@ -39,7 +39,7 @@ void Garage::displayAllOptions() const
         std::cout << o << std::endl;
 }
 
-carconfig::Option Garage::getOption(int index)
+carconfig::Option Garage::getOption(int index) const
 {
     auto it = options.begin();
     std::advance(it, index);
@@ -152,4 +152,20 @@ Employee Garage::findEmployeeById(int id) const
             return e;
     }
     throw std::invalid_argument("Employee ID introuvable");
+}
+
+// SINGLETON IMPLEMENTATION
+Garage Garage::instance;
+carconfig::Car Garage::currentProject;
+
+Garage& Garage::getInstance() {
+    return instance;
+}
+
+carconfig::Car& Garage::getCurrentProject() {
+    return currentProject;
+}
+
+void Garage::resetCurrentProject() {
+    currentProject = carconfig::Car();  // reset
 }
