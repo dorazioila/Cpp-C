@@ -5,9 +5,15 @@
 #include <sstream>
 #include "OptionException.h"
 using namespace carconfig;
-// ===============================================
-// MODELS
-// ===============================================
+
+
+Garage::Garage()
+{
+    int id = ++Actor::currentId;
+    Employee admin("ADMIN", "ADMIN", id, "admin", "Administratif");
+    employees.insert(admin);
+}
+
 
 void Garage::addModel(const carconfig::Model& m)
 {
@@ -102,7 +108,10 @@ Client Garage::findClientById(int id) const
     }
     throw std::invalid_argument("Client ID introuvable");
 }
-
+const std::set<Client>& Garage::getClients() const
+{
+    return clients;
+}
 // ===============================================
 // EMPLOYEES
 // ===============================================
@@ -113,6 +122,11 @@ int Garage::addEmployee(const std::string& ln, const std::string& fn, const std:
     Employee e(ln, fn, id, login, role);
     employees.insert(e);
     return id;
+}
+
+const std::set<Employee>& Garage::getEmployees() const
+{
+    return employees;
 }
 
 void Garage::displayEmployees() const
@@ -176,7 +190,7 @@ void Garage::resetCurrentProject() {
 void Garage::importModelsFromCsv(std::string filename)
 {   
 
-    
+
     std::ifstream file(filename);
     if (!file)
     {
@@ -260,4 +274,20 @@ int Garage::getNbModels() const
 int Garage::getNbOptions() const
 {
     return options.size();
+}
+int Garage::idLoggedEmployee = -1;
+
+int Garage::getNbEmployees() const
+{
+    return employees.size();
+}
+
+void Garage::updateEmployee(const Employee& e)
+{
+    auto it = employees.find(e);
+    if (it != employees.end())
+    {
+        employees.erase(it);
+        employees.insert(e);
+    }
 }

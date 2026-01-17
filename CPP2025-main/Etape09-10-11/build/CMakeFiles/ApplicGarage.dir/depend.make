@@ -67,6 +67,7 @@ CMakeFiles/ApplicGarage.dir/sources/applicgaragewindow.cpp.o: ../includes/Garage
 CMakeFiles/ApplicGarage.dir/sources/applicgaragewindow.cpp.o: ../includes/Model.h
 CMakeFiles/ApplicGarage.dir/sources/applicgaragewindow.cpp.o: ../includes/Option.h
 CMakeFiles/ApplicGarage.dir/sources/applicgaragewindow.cpp.o: ../includes/OptionException.h
+CMakeFiles/ApplicGarage.dir/sources/applicgaragewindow.cpp.o: ../includes/PasswordException.h
 CMakeFiles/ApplicGarage.dir/sources/applicgaragewindow.cpp.o: ../includes/Person.h
 CMakeFiles/ApplicGarage.dir/sources/applicgaragewindow.cpp.o: ../includes/applicgaragewindow.h
 CMakeFiles/ApplicGarage.dir/sources/applicgaragewindow.cpp.o: ../includes/ui_applicgaragewindow.h
