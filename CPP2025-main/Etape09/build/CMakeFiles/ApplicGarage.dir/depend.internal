@@ -4,6 +4,8 @@
 CMakeFiles/ApplicGarage.dir/ApplicGarage_autogen/mocs_compilation.cpp.o
  /home/student/Cpp-C/CPP2025-main/Etape09/build/ApplicGarage_autogen/mocs_compilation.cpp
 CMakeFiles/ApplicGarage.dir/sources/Actor.cpp.o
+ ../includes/Actor.h
+ ../includes/Person.h
  /home/student/Cpp-C/CPP2025-main/Etape09/sources/Actor.cpp
 CMakeFiles/ApplicGarage.dir/sources/Car.cpp.o
  ../includes/Car.h
@@ -13,23 +15,31 @@ CMakeFiles/ApplicGarage.dir/sources/Car.cpp.o
  ../includes/OptionException.h
  /home/student/Cpp-C/CPP2025-main/Etape09/sources/Car.cpp
 CMakeFiles/ApplicGarage.dir/sources/Client.cpp.o
+ ../includes/Actor.h
  ../includes/Client.h
+ ../includes/Person.h
  /home/student/Cpp-C/CPP2025-main/Etape09/sources/Client.cpp
 CMakeFiles/ApplicGarage.dir/sources/Employee.cpp.o
+ ../includes/Actor.h
  ../includes/Employee.h
  ../includes/Exception.h
  ../includes/PasswordException.h
+ ../includes/Person.h
  /home/student/Cpp-C/CPP2025-main/Etape09/sources/Employee.cpp
 CMakeFiles/ApplicGarage.dir/sources/Exception.cpp.o
  ../includes/Exception.h
  /home/student/Cpp-C/CPP2025-main/Etape09/sources/Exception.cpp
 CMakeFiles/ApplicGarage.dir/sources/Garage.cpp.o
+ ../includes/Actor.h
  ../includes/Car.h
  ../includes/Client.h
  ../includes/Employee.h
+ ../includes/Exception.h
  ../includes/Garage.h
  ../includes/Model.h
  ../includes/Option.h
+ ../includes/OptionException.h
+ ../includes/Person.h
  /home/student/Cpp-C/CPP2025-main/Etape09/sources/Garage.cpp
 CMakeFiles/ApplicGarage.dir/sources/Model.cpp.o
  ../includes/Model.h
@@ -49,6 +59,16 @@ CMakeFiles/ApplicGarage.dir/sources/Person.cpp.o
  ../includes/Person.h
  /home/student/Cpp-C/CPP2025-main/Etape09/sources/Person.cpp
 CMakeFiles/ApplicGarage.dir/sources/applicgaragewindow.cpp.o
+ ../includes/Actor.h
+ ../includes/Car.h
+ ../includes/Client.h
+ ../includes/Employee.h
+ ../includes/Exception.h
+ ../includes/Garage.h
+ ../includes/Model.h
+ ../includes/Option.h
+ ../includes/OptionException.h
+ ../includes/Person.h
  ../includes/applicgaragewindow.h
  ../includes/ui_applicgaragewindow.h
  /home/student/Cpp-C/CPP2025-main/Etape09/sources/applicgaragewindow.cpp

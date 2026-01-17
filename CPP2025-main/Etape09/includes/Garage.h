@@ -20,9 +20,9 @@ private:
     std::list<carconfig::Model> models;
     std::list<carconfig::Option> options;
     
-    // SINGLETON CORRIGÉ
+    
     static Garage instance;
-    static carconfig::Car currentProject;  // ← STATIC + NAMESPACE
+    static carconfig::Car currentProject;  
     
 
     Garage(const Garage&) = delete;
@@ -60,6 +60,12 @@ public:
     void deleteEmployeeById(int id);
     Employee findEmployeeByIndex(int index) const;
     Employee findEmployeeById(int id) const;
+
+    void importModelsFromCsv(std::string filename);
+    void importOptionsFromCsv(std::string filename);
+    int getNbModels() const;
+    int getNbOptions() const;
+
 };
 
 #endif

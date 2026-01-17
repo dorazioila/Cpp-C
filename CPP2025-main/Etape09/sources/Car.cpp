@@ -1,6 +1,6 @@
 #include "Car.h"
 #include "OptionException.h"
-
+#include <fstream>
 #include <iostream>
 #include <string>
 
@@ -277,6 +277,31 @@ void Car::display() const
             options[i]->display();
         }
     }
+}
+
+void Car::save()
+{
+    string filename = name + ".xml";
+    ofstream f(filename);
+    if(!f)
+        return;
+
+    f << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl;
+    f << *this;
+    f.close();
+}
+
+void Car::load(string projectName)
+{
+    string filename = projectName + ".xml";
+    ifstream f(filename);
+    if(!f)
+        return;
+
+    string line;
+    getline(f, line);
+    f >> *this;
+    f.close();
 }
 
 } // namespace carconfig  

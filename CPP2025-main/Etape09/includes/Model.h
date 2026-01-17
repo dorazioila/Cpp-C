@@ -4,7 +4,7 @@
 #include <ostream>
 #include <istream>
 #include <string>
-
+using namespace std;
 namespace carconfig {
 	enum Engine { Petrol, Diesel, Electric, Hybrid };
 
@@ -15,8 +15,11 @@ namespace carconfig {
 		int power;
 		Engine engine;
 		float basePrice;
+		string image;
 
 	public:
+		string getImage() const { return image; }
+    	void setImage(const string& img) { image = img; }
 		Model(); // constructeur par défaut
 		Model(const char* n, int p, Engine e, float bp); // constructeur d'initialisation
 		Model(const Model& mod); // constructeur de copie

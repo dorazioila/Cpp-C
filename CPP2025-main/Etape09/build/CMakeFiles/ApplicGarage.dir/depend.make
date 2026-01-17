@@ -3,6 +3,8 @@
 
 CMakeFiles/ApplicGarage.dir/ApplicGarage_autogen/mocs_compilation.cpp.o: ApplicGarage_autogen/mocs_compilation.cpp
 
+CMakeFiles/ApplicGarage.dir/sources/Actor.cpp.o: ../includes/Actor.h
+CMakeFiles/ApplicGarage.dir/sources/Actor.cpp.o: ../includes/Person.h
 CMakeFiles/ApplicGarage.dir/sources/Actor.cpp.o: ../sources/Actor.cpp
 
 CMakeFiles/ApplicGarage.dir/sources/Car.cpp.o: ../includes/Car.h
@@ -12,23 +14,31 @@ CMakeFiles/ApplicGarage.dir/sources/Car.cpp.o: ../includes/Option.h
 CMakeFiles/ApplicGarage.dir/sources/Car.cpp.o: ../includes/OptionException.h
 CMakeFiles/ApplicGarage.dir/sources/Car.cpp.o: ../sources/Car.cpp
 
+CMakeFiles/ApplicGarage.dir/sources/Client.cpp.o: ../includes/Actor.h
 CMakeFiles/ApplicGarage.dir/sources/Client.cpp.o: ../includes/Client.h
+CMakeFiles/ApplicGarage.dir/sources/Client.cpp.o: ../includes/Person.h
 CMakeFiles/ApplicGarage.dir/sources/Client.cpp.o: ../sources/Client.cpp
 
+CMakeFiles/ApplicGarage.dir/sources/Employee.cpp.o: ../includes/Actor.h
 CMakeFiles/ApplicGarage.dir/sources/Employee.cpp.o: ../includes/Employee.h
 CMakeFiles/ApplicGarage.dir/sources/Employee.cpp.o: ../includes/Exception.h
 CMakeFiles/ApplicGarage.dir/sources/Employee.cpp.o: ../includes/PasswordException.h
+CMakeFiles/ApplicGarage.dir/sources/Employee.cpp.o: ../includes/Person.h
 CMakeFiles/ApplicGarage.dir/sources/Employee.cpp.o: ../sources/Employee.cpp
 
 CMakeFiles/ApplicGarage.dir/sources/Exception.cpp.o: ../includes/Exception.h
 CMakeFiles/ApplicGarage.dir/sources/Exception.cpp.o: ../sources/Exception.cpp
 
+CMakeFiles/ApplicGarage.dir/sources/Garage.cpp.o: ../includes/Actor.h
 CMakeFiles/ApplicGarage.dir/sources/Garage.cpp.o: ../includes/Car.h
 CMakeFiles/ApplicGarage.dir/sources/Garage.cpp.o: ../includes/Client.h
 CMakeFiles/ApplicGarage.dir/sources/Garage.cpp.o: ../includes/Employee.h
+CMakeFiles/ApplicGarage.dir/sources/Garage.cpp.o: ../includes/Exception.h
 CMakeFiles/ApplicGarage.dir/sources/Garage.cpp.o: ../includes/Garage.h
 CMakeFiles/ApplicGarage.dir/sources/Garage.cpp.o: ../includes/Model.h
 CMakeFiles/ApplicGarage.dir/sources/Garage.cpp.o: ../includes/Option.h
+CMakeFiles/ApplicGarage.dir/sources/Garage.cpp.o: ../includes/OptionException.h
+CMakeFiles/ApplicGarage.dir/sources/Garage.cpp.o: ../includes/Person.h
 CMakeFiles/ApplicGarage.dir/sources/Garage.cpp.o: ../sources/Garage.cpp
 
 CMakeFiles/ApplicGarage.dir/sources/Model.cpp.o: ../includes/Model.h
@@ -48,6 +58,16 @@ CMakeFiles/ApplicGarage.dir/sources/PasswordException.cpp.o: ../sources/Password
 CMakeFiles/ApplicGarage.dir/sources/Person.cpp.o: ../includes/Person.h
 CMakeFiles/ApplicGarage.dir/sources/Person.cpp.o: ../sources/Person.cpp
 
+CMakeFiles/ApplicGarage.dir/sources/applicgaragewindow.cpp.o: ../includes/Actor.h
+CMakeFiles/ApplicGarage.dir/sources/applicgaragewindow.cpp.o: ../includes/Car.h
+CMakeFiles/ApplicGarage.dir/sources/applicgaragewindow.cpp.o: ../includes/Client.h
+CMakeFiles/ApplicGarage.dir/sources/applicgaragewindow.cpp.o: ../includes/Employee.h
+CMakeFiles/ApplicGarage.dir/sources/applicgaragewindow.cpp.o: ../includes/Exception.h
+CMakeFiles/ApplicGarage.dir/sources/applicgaragewindow.cpp.o: ../includes/Garage.h
+CMakeFiles/ApplicGarage.dir/sources/applicgaragewindow.cpp.o: ../includes/Model.h
+CMakeFiles/ApplicGarage.dir/sources/applicgaragewindow.cpp.o: ../includes/Option.h
+CMakeFiles/ApplicGarage.dir/sources/applicgaragewindow.cpp.o: ../includes/OptionException.h
+CMakeFiles/ApplicGarage.dir/sources/applicgaragewindow.cpp.o: ../includes/Person.h
 CMakeFiles/ApplicGarage.dir/sources/applicgaragewindow.cpp.o: ../includes/applicgaragewindow.h
 CMakeFiles/ApplicGarage.dir/sources/applicgaragewindow.cpp.o: ../includes/ui_applicgaragewindow.h
 CMakeFiles/ApplicGarage.dir/sources/applicgaragewindow.cpp.o: ../sources/applicgaragewindow.cpp

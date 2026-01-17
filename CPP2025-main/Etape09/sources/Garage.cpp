@@ -1,7 +1,10 @@
 #include "Garage.h"
 #include <stdexcept>
 #include <iterator>
-
+#include <fstream>
+#include <sstream>
+#include "OptionException.h"
+using namespace carconfig;
 // ===============================================
 // MODELS
 // ===============================================
@@ -154,7 +157,7 @@ Employee Garage::findEmployeeById(int id) const
     throw std::invalid_argument("Employee ID introuvable");
 }
 
-// SINGLETON IMPLEMENTATION
+
 Garage Garage::instance;
 carconfig::Car Garage::currentProject;
 
@@ -167,5 +170,94 @@ carconfig::Car& Garage::getCurrentProject() {
 }
 
 void Garage::resetCurrentProject() {
-    currentProject = carconfig::Car();  // reset
+    currentProject = carconfig::Car();  
+}
+
+void Garage::importModelsFromCsv(std::string filename)
+{   
+
+    
+    std::ifstream file(filename);
+    if (!file)
+    {
+        std::cout << "ERREUR: models.csv introuvable\n";
+        return;
+    }
+
+    std::string line;
+    std::getline(file, line); 
+
+    while (std::getline(file, line))
+    {
+        std::stringstream ss(line);
+        std::string name, powerStr, engineStr, image, priceStr;
+
+        std::getline(ss, name, ';');
+        std::getline(ss, powerStr, ';');
+        std::getline(ss, engineStr, ';');
+        std::getline(ss, image, ';');
+        std::getline(ss, priceStr, ';');
+
+        int power = std::stoi(powerStr);
+        float price = std::stof(priceStr);
+
+        Engine engine = Petrol;
+        if (engineStr == "diesel") engine = Diesel;
+        else if (engineStr == "electrique") engine = Electric;
+        else if (engineStr == "hybride") engine = Hybrid;
+
+        Model m(name.c_str(), power, engine, price);
+        m.setImage(image);
+
+        addModel(m);
+    }
+
+    file.close();
+}
+
+void Garage::importOptionsFromCsv(std::string filename)
+{
+    std::ifstream file(filename);
+    if (!file)
+        return;
+
+    std::string line;
+    std::getline(file, line); 
+
+    while (std::getline(file, line))
+    {
+        std::stringstream ss(line);
+        std::string code, label, priceStr;
+
+        std::getline(ss, code, ';');
+        std::getline(ss, label, ';');
+        std::getline(ss, priceStr, ';');
+
+        float price = std::stof(priceStr);
+
+        try
+        {
+            Option o;
+            o.setCode(code);
+            o.setLabel(label);
+            o.setPrice(price);
+            addOption(o);
+        }
+        catch (OptionException&)
+        {
+            
+        }
+    }
+
+    file.close();
+}
+
+int Garage::getNbModels() const
+{
+    return models.size();
+}
+
+int Garage::getNbOptions() const
+{
+    return options.size();
 }

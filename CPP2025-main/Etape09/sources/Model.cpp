@@ -5,12 +5,12 @@
 using namespace carconfig;
 namespace carconfig {  
 
-Model::Model() : name(nullptr), power(0), engine(Petrol), basePrice(0.0f) {
+Model::Model() : name(nullptr), power(0), engine(Petrol), basePrice(0.0f), image(""){
     name = new char[1];
     name[0] = '\0';
 }
 
-Model::Model(const char* n, int p, Engine e, float bp) : power(p), engine(e), basePrice(bp) {
+Model::Model(const char* n, int p, Engine e, float bp): power(p), engine(e), basePrice(bp), image("") {
     if (n) {
         size_t len = std::strlen(n) + 1;
         name = new char[len];
@@ -21,7 +21,7 @@ Model::Model(const char* n, int p, Engine e, float bp) : power(p), engine(e), ba
     }
 }
 
-Model::Model(const Model& mod) : power(mod.power), engine(mod.engine), basePrice(mod.basePrice) {
+Model::Model(const Model& mod): power(mod.power),engine(mod.engine),basePrice(mod.basePrice),image(mod.image) {
     if (mod.name) {
         size_t len = std::strlen(mod.name) + 1;
         name = new char[len];
@@ -50,6 +50,7 @@ Model& Model::operator=(const Model& mod) {
         power = mod.power;
         engine = mod.engine;
         basePrice = mod.basePrice;
+        image = mod.image;
     }
     return *this;
 }
