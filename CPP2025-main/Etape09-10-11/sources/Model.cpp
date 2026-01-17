@@ -109,6 +109,7 @@ std::ostream& operator<<(std::ostream& os, const Model& mod) {
     }
     os << "\n</engine>\n";
     os << "<basePrice>\n" << mod.basePrice << "\n</basePrice>\n";
+    os << "<image>\n" << mod.image<< "\n</image>\n";
     os << "</Model>\n";
     return os;
 }
@@ -149,8 +150,20 @@ std::istream& operator>>(std::istream& is, Model& mod) {
     mod.setBasePrice(std::stof(temp));
     std::getline(is, line);      // </basePrice>
 
-    // </Model>
     std::getline(is, line);
+    if (line.find("<image>") != std::string::npos)
+    {
+        std::getline(is, temp);
+        mod.setImage(temp);
+        std::getline(is, line); // </image>
+        std::getline(is, line); // </Model>
+    }
+    else
+    {
+        // Pas d'image → valeur par défaut
+        mod.setImage("");
+        // line est déjà </Model>
+    }
 
 
 

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Car>
+<name>
+bonjour
+</name>
+<model>
+<Model>
+<name>
+308 Access 1.2 PureTech
+</name>
+<power>
+110
+</power>
+<engine>
+essence
+</engine>
+<basePrice>
+20700
+</basePrice>
+<image>
+308.jpg
+</image>
+</Model>
+</model>
+<options>
+<Option>
+<code>
+PR01
+</code>
+<label>
+Phares antibrouillard avant
+</label>
+<price>
+150
+</price>
+</Option>
+<Option>
+<code>
+HU02
+</code>
+<label>
+Retroviseurs exterieurs rabattables electriquement
+</label>
+<price>
+200
+</price>
+</Option>
+<Option>
+<code>
+WLQU
+</code>
+<label>
+Systeme de navigation Europe
+</label>
+<price>
+900
+</price>
+</Option>
+</options>
+</Car>

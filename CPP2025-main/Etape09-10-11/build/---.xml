@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Car>
 <name>
-Projet308_Mr_Dugenou
+---
 </name>
 <model>
 <Model>
@@ -20,16 +20,5 @@ essence
 </Model>
 </model>
 <options>
-<Option>
-<code>
-EMM0
-</code>
-<label>
-louis
-</label>
-<price>
-10
-</price>
-</Option>
 </options>
 </Car>
