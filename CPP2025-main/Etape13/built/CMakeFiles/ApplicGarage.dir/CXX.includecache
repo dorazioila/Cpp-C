@@ -32,7 +32,9 @@ ostream
 istream
 -
 
-../includes/Credentials.h
+../includes/Contract.h
+string
+-
 
 ../includes/Employee.h
 Actor.h
@@ -67,6 +69,8 @@ Option.h
 ../includes/Option.h
 Car.h
 ../includes/Car.h
+Contract.h
+../includes/Contract.h
 
 ../includes/Model.h
 ostream
@@ -99,24 +103,6 @@ istream
 -
 string
 -
-
-../includes/XmlFileSerializer.hpp
-XmlFileSerializerException.hpp
-../includes/XmlFileSerializerException.hpp
-Exception.h
-../includes/Exception.h
-fstream
--
-string
--
-XmlFileSerializer.ipp
-../includes/XmlFileSerializer.ipp
-
-../includes/XmlFileSerializer.ipp
-
-../includes/XmlFileSerializerException.hpp
-Exception.h
-../includes/Exception.h
 
 ../includes/applicgaragewindow.h
 QMainWindow
@@ -160,31 +146,11 @@ QtWidgets/QTableWidget
 QtWidgets/QWidget
 -
 
-/home/student/Cpp-C/CPP2025-main/Etape12/sources/Garage.cpp
-Garage.h
-/home/student/Cpp-C/CPP2025-main/Etape12/sources/Garage.h
-stdexcept
--
-iterator
--
-fstream
--
-sstream
--
-OptionException.h
-/home/student/Cpp-C/CPP2025-main/Etape12/sources/OptionException.h
-XmlFileSerializer.hpp
-/home/student/Cpp-C/CPP2025-main/Etape12/sources/XmlFileSerializer.hpp
-Credentials.h
-/home/student/Cpp-C/CPP2025-main/Etape12/sources/Credentials.h
-cstring
--
-
-/home/student/Cpp-C/CPP2025-main/Etape12/sources/applicgaragewindow.cpp
+/home/student/Cpp-C/CPP2025-main/Etape13/sources/applicgaragewindow.cpp
 applicgaragewindow.h
-/home/student/Cpp-C/CPP2025-main/Etape12/sources/applicgaragewindow.h
+/home/student/Cpp-C/CPP2025-main/Etape13/sources/applicgaragewindow.h
 ui_applicgaragewindow.h
-/home/student/Cpp-C/CPP2025-main/Etape12/sources/ui_applicgaragewindow.h
+/home/student/Cpp-C/CPP2025-main/Etape13/sources/ui_applicgaragewindow.h
 QMessageBox
 -
 QInputDialog
@@ -196,21 +162,21 @@ sstream
 iostream
 -
 unistd.h
-/home/student/Cpp-C/CPP2025-main/Etape12/sources/unistd.h
+/home/student/Cpp-C/CPP2025-main/Etape13/sources/unistd.h
 Garage.h
-/home/student/Cpp-C/CPP2025-main/Etape12/sources/Garage.h
+/home/student/Cpp-C/CPP2025-main/Etape13/sources/Garage.h
 Car.h
-/home/student/Cpp-C/CPP2025-main/Etape12/sources/Car.h
+/home/student/Cpp-C/CPP2025-main/Etape13/sources/Car.h
 Model.h
-/home/student/Cpp-C/CPP2025-main/Etape12/sources/Model.h
+/home/student/Cpp-C/CPP2025-main/Etape13/sources/Model.h
 Option.h
-/home/student/Cpp-C/CPP2025-main/Etape12/sources/Option.h
+/home/student/Cpp-C/CPP2025-main/Etape13/sources/Option.h
 OptionException.h
-/home/student/Cpp-C/CPP2025-main/Etape12/sources/OptionException.h
+/home/student/Cpp-C/CPP2025-main/Etape13/sources/OptionException.h
 fstream
 -
 PasswordException.h
-/home/student/Cpp-C/CPP2025-main/Etape12/sources/PasswordException.h
+/home/student/Cpp-C/CPP2025-main/Etape13/sources/PasswordException.h
 
 /usr/include/qt5/QtCore/QVariant
 qvariant.h

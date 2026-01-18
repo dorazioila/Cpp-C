@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<contracts>
+<Contract>
+<id>
+4
+</id>
+<vendeurId>
+2
+</vendeurId>
+<clientId>
+3
+</clientId>
+<projectName>
+projetTest
+</projectName>
+</Contract>
+<Contract>
+<id>
+7
+</id>
+<vendeurId>
+2
+</vendeurId>
+<clientId>
+6
+</clientId>
+<projectName>
+pour marco
+</projectName>
+</Contract>
+</contracts>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Car>
+<name>
+pour marco
+</name>
+<model>
+<Model>
+<name>
+508SW GT Line 1.6 Hybrid 225
+</name>
+<power>
+180
+</power>
+<engine>
+hybride
+</engine>
+<basePrice>
+50750
+</basePrice>
+<image>
+508SW.jpg
+</image>
+</Model>
+</model>
+<options>
+<Option>
+<code>
+VD09
+</code>
+<label>
+Vitres laterales arrieres surteintees
+</label>
+<price>
+150
+</price>
+</Option>
+<Option>
+<code>
+AB08
+</code>
+<label>
+Alarme volumetrique et perimetrique
+</label>
+<price>
+350
+</price>
+</Option>
+</options>
+</Car>
