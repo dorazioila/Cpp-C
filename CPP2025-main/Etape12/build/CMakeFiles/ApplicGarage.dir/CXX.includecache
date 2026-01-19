@@ -32,8 +32,6 @@ ostream
 istream
 -
 
-../includes/Credentials.h
-
 ../includes/Employee.h
 Actor.h
 ../includes/Actor.h
@@ -100,24 +98,6 @@ istream
 string
 -
 
-../includes/XmlFileSerializer.hpp
-XmlFileSerializerException.hpp
-../includes/XmlFileSerializerException.hpp
-Exception.h
-../includes/Exception.h
-fstream
--
-string
--
-XmlFileSerializer.ipp
-../includes/XmlFileSerializer.ipp
-
-../includes/XmlFileSerializer.ipp
-
-../includes/XmlFileSerializerException.hpp
-Exception.h
-../includes/Exception.h
-
 ../includes/applicgaragewindow.h
 QMainWindow
 -
@@ -160,25 +140,15 @@ QtWidgets/QTableWidget
 QtWidgets/QWidget
 -
 
-/home/student/Cpp-C/CPP2025-main/Etape12/sources/Garage.cpp
-Garage.h
-/home/student/Cpp-C/CPP2025-main/Etape12/sources/Garage.h
-stdexcept
--
-iterator
--
-fstream
+/home/student/Cpp-C/CPP2025-main/Etape12/sources/Option.cpp
+Option.h
+/home/student/Cpp-C/CPP2025-main/Etape12/sources/Option.h
+iostream
 -
 sstream
 -
 OptionException.h
 /home/student/Cpp-C/CPP2025-main/Etape12/sources/OptionException.h
-XmlFileSerializer.hpp
-/home/student/Cpp-C/CPP2025-main/Etape12/sources/XmlFileSerializer.hpp
-Credentials.h
-/home/student/Cpp-C/CPP2025-main/Etape12/sources/Credentials.h
-cstring
--
 
 /home/student/Cpp-C/CPP2025-main/Etape12/sources/applicgaragewindow.cpp
 applicgaragewindow.h

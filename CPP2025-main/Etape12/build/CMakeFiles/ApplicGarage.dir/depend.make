@@ -51,7 +51,9 @@ CMakeFiles/ApplicGarage.dir/sources/Garage.cpp.o: ../sources/Garage.cpp
 CMakeFiles/ApplicGarage.dir/sources/Model.cpp.o: ../includes/Model.h
 CMakeFiles/ApplicGarage.dir/sources/Model.cpp.o: ../sources/Model.cpp
 
+CMakeFiles/ApplicGarage.dir/sources/Option.cpp.o: ../includes/Exception.h
 CMakeFiles/ApplicGarage.dir/sources/Option.cpp.o: ../includes/Option.h
+CMakeFiles/ApplicGarage.dir/sources/Option.cpp.o: ../includes/OptionException.h
 CMakeFiles/ApplicGarage.dir/sources/Option.cpp.o: ../sources/Option.cpp
 
 CMakeFiles/ApplicGarage.dir/sources/OptionException.cpp.o: ../includes/Exception.h

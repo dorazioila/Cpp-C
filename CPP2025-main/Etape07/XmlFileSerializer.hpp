@@ -1,7 +1,7 @@
 #ifndef XMLFILESERIALIZER_HPP
 #define XMLFILESERIALIZER_HPP
 
-#include "XmlFileSerializerException.h" 
+#include "XmlFileSerializerException.hpp" 
 #include "Exception.h"
 #include <fstream>
 #include <string>

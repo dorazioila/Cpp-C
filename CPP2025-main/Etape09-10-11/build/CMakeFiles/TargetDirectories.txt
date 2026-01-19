@@ -1,4 +1,0 @@
-/home/student/Cpp-C/CPP2025-main/Etape09-10-11/build/CMakeFiles/rebuild_cache.dir
-/home/student/Cpp-C/CPP2025-main/Etape09-10-11/build/CMakeFiles/ApplicGarage.dir
-/home/student/Cpp-C/CPP2025-main/Etape09-10-11/build/CMakeFiles/edit_cache.dir
-/home/student/Cpp-C/CPP2025-main/Etape09-10-11/build/CMakeFiles/ApplicGarage_autogen.dir

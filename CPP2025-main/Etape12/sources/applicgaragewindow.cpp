@@ -101,7 +101,7 @@ ApplicGarageWindow::ApplicGarageWindow(QWidget *parent) : QMainWindow(parent),ui
 
     // Lecture de config.dat, des employees, clients et contrats (étape 12)
 
-    setRole();
+    setRole(0);
 
     
 }

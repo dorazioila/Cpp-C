@@ -52,7 +52,9 @@ CMakeFiles/ApplicGarage.dir/sources/Model.cpp.o
  ../includes/Model.h
  /home/student/Cpp-C/CPP2025-main/Etape12/sources/Model.cpp
 CMakeFiles/ApplicGarage.dir/sources/Option.cpp.o
+ ../includes/Exception.h
  ../includes/Option.h
+ ../includes/OptionException.h
  /home/student/Cpp-C/CPP2025-main/Etape12/sources/Option.cpp
 CMakeFiles/ApplicGarage.dir/sources/OptionException.cpp.o
  ../includes/Exception.h

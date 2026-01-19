@@ -99,23 +99,7 @@ ApplicGarageWindow::ApplicGarageWindow(QWidget *parent) : QMainWindow(parent),ui
     
     Garage::getInstance().load();
 
-    clearTableEmployees();
-    for (const auto& e : g.getEmployees())
-    {
-        addTupleTableEmployees(e.tuple());
-    }
-
-    clearTableClients();
-    for (const auto& c : g.getClients())
-    {
-        addTupleTableClients(c.tuple());
-    }
-
-    clearTableContracts();
-    for (const auto& c : g.getContracts())
-    {
-        addTupleTableContracts(c.tuple());
-    }
+    
     // Lecture de config.dat, des employees, clients et contrats (étape 12)
 
     setRole(0);
@@ -913,8 +897,19 @@ void ApplicGarageWindow::on_actionLogin_triggered()
 
             setTitle(e.getLastName() + " " + e.getFirstName());
             setRole(e.getRole() == "Administratif" ? 1 : 2);
-            return;
-        }
+            clearTableEmployees();
+            for (const auto& e2 : g.getEmployees())
+                addTupleTableEmployees(e2.tuple());
+
+            clearTableClients();
+            for (const auto& c2 : g.getClients())
+                addTupleTableClients(c2.tuple());
+
+            clearTableContracts();
+            for (const auto& ct : g.getContracts())
+                addTupleTableContracts(ct.tuple());
+                        return;
+                    }
     }
 
     dialogError("Erreur", "Login inconnu");
@@ -926,21 +921,15 @@ void ApplicGarageWindow::on_actionLogout_triggered()
     // TO DO (étape 11)
     cout << ">>> Clic sur item Logout <<<" << endl;
     setTitle("Garage");
-    setRole(0);
-    Garage::idLoggedEmployee = -1;
-
-    Garage& g = Garage::getInstance();
+    setRole(0);  
     clearTableEmployees();
-    for (const auto& e : g.getEmployees())
-        addTupleTableEmployees(e.tuple());
-
     clearTableClients();
-    for (const auto& c : g.getClients())
-        addTupleTableClients(c.tuple());
-
     clearTableContracts();
-    for (const auto& c : g.getContracts())
-        addTupleTableContracts(c.tuple());    
+    clearTableOption();
+
+    setCurrentProjectName("");
+    setModel("", 0, 0, 0.0f, "");
+    setPrice(0.0f);  
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////

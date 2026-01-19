@@ -31,7 +31,7 @@ Person.o: Person.cpp Person.h
 	g++ -c Person.cpp 
 
 Actor.o: Actor.cpp Actor.h Person.h
-	g++ -c Actor.cpp -
+	g++ -c Actor.cpp
 
 Client.o: Client.cpp Client.h Actor.h
 	g++ -c Client.cpp 
