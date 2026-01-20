@@ -89,6 +89,7 @@ int main()
     switch(m.requete)
     {
       case CONNECT :  
+      {
                       fprintf(stderr,"(SERVEUR %d) Requete CONNECT reçue de %d\n",getpid(),m.expediteur);
                       for(int i=0;i<6;i++)
                       if(tab->connexions[i].pidFenetre==0)
@@ -97,9 +98,11 @@ int main()
                           strcpy(tab->connexions[i].nom,"-");
                           break;
                       }
+                      }
                       break; 
 
       case DECONNECT :  
+      {
                       fprintf(stderr,"(SERVEUR %d) Requete DECONNECT reçue de %d\n",getpid(),m.expediteur);
                        for(int i=0;i<6;i++)
                       if(tab->connexions[i].pidFenetre==m.expediteur)
@@ -108,11 +111,15 @@ int main()
                           strcpy(tab->connexions[i].nom,"");
                       }
                       break; 
+                      }
 
       case LOGIN :  
-                      fprintf(stderr,"(SERVEUR %d) Requete LOGIN reçue de %d : --%s--%s--%s--\n",getpid(),m.expediteur,m.data1,m.data2,m.texte);
+      {
+                      fprintf(stderr,"(SERVEUR %d) Requete LOGIN reçue de %d : --%s--%s--%s--\n",
+                      getpid(),m.expediteur,m.data1,m.data2,m.texte);
+
                       for(i=0;i<6;i++)
-                      if(tab->connexions[i].pidFenetre==m.expediteur)
+                        if(tab->connexions[i].pidFenetre==m.expediteur)
                           strcpy(tab->connexions[i].nom,m.data2);
 
                       reponse.type = m.expediteur;
@@ -121,26 +128,136 @@ int main()
                       strcpy(reponse.texte,"Login réussi");
                       msgsnd(idQ,&reponse,sizeof(MESSAGE)-sizeof(long),0);
                       kill(m.expediteur,SIGUSR1);
-                      break; 
+
+                      // Nouveau vers anciens
+                      for(i=0;i<6;i++)
+                        if(tab->connexions[i].pidFenetre != 0 &&
+                           tab->connexions[i].pidFenetre != m.expediteur)
+                        {
+                          reponse.type = tab->connexions[i].pidFenetre;
+                          reponse.requete = ADD_USER;
+                          strcpy(reponse.data1,m.data2);
+                          msgsnd(idQ,&reponse,sizeof(MESSAGE)-sizeof(long),0);
+                          kill(tab->connexions[i].pidFenetre,SIGUSR1);
+                        }
+
+                      // Anciens vers nouveau
+                      for(i=0;i<6;i++)
+                        if(tab->connexions[i].pidFenetre != 0 &&
+                           tab->connexions[i].pidFenetre != m.expediteur)
+                        {
+                          reponse.type = m.expediteur;
+                          reponse.requete = ADD_USER;
+                          strcpy(reponse.data1,tab->connexions[i].nom);
+                          msgsnd(idQ,&reponse,sizeof(MESSAGE)-sizeof(long),0);
+                          kill(m.expediteur,SIGUSR1);
+                        }
+                    }
+                    break;
+                      
 
       case LOGOUT :  
+      {
                       fprintf(stderr,"(SERVEUR %d) Requete LOGOUT reçue de %d\n",getpid(),m.expediteur);
+                      char nomSupprime[20]="";
+
                       for(i=0;i<6;i++)
-                      if(tab->connexions[i].pidFenetre==m.expediteur)
-                          strcpy(tab->connexions[i].nom,"-");
-                      break;
+                        if(tab->connexions[i].pidFenetre==m.expediteur)
+                          strcpy(nomSupprime,tab->connexions[i].nom);
+
+                      for(k=0;k<6;k++)
+                        if(tab->connexions[k].pidFenetre != 0 &&
+                           tab->connexions[k].pidFenetre != m.expediteur)
+                        {
+                          reponse.type = tab->connexions[k].pidFenetre;
+                          reponse.requete = REMOVE_USER;
+                          strcpy(reponse.data1,nomSupprime);
+                          msgsnd(idQ,&reponse,sizeof(MESSAGE)-sizeof(long),0);
+                          kill(tab->connexions[k].pidFenetre,SIGUSR1);
+                        }
+
+                      for(i=0;i<6;i++)
+                        if(tab->connexions[i].pidFenetre==m.expediteur)
+                        {
+                          tab->connexions[i].pidFenetre=0;
+                          strcpy(tab->connexions[i].nom,"");
+                          for(j=0;j<5;j++) tab->connexions[i].autres[j]=0;
+                        }
+
+                      for(i=0;i<6;i++)
+                        for(j=0;j<5;j++)
+                          if(tab->connexions[i].autres[j]==m.expediteur)
+                            tab->connexions[i].autres[j]=0;
+                    }
+                    break;
+                      
 
       case ACCEPT_USER :
+      {
                       fprintf(stderr,"(SERVEUR %d) Requete ACCEPT_USER reçue de %d\n",getpid(),m.expediteur);
+                      int pidDest=0;
+
+                      for(i=0;i<6;i++)
+                        if(strcmp(tab->connexions[i].nom,m.data1)==0)
+                          pidDest = tab->connexions[i].pidFenetre;
+
+                      for(i=0;i<6;i++)
+                        if(tab->connexions[i].pidFenetre==m.expediteur)
+                          for(j=0;j<5;j++)
+                            if(tab->connexions[i].autres[j]==0)
+                            {
+                              tab->connexions[i].autres[j]=pidDest;
+                              break;
+                            }
                       break;
+                      }
 
       case REFUSE_USER :
+      {
                       fprintf(stderr,"(SERVEUR %d) Requete REFUSE_USER reçue de %d\n",getpid(),m.expediteur);
-                      break;
+                      int pidDest=0;
 
-      case SEND :  
+                      for(i=0;i<6;i++)
+                        if(strcmp(tab->connexions[i].nom,m.data1)==0)
+                          pidDest = tab->connexions[i].pidFenetre;
+
+                      for(i=0;i<6;i++)
+                        if(tab->connexions[i].pidFenetre==m.expediteur)
+                          for(j=0;j<5;j++)
+                            if(tab->connexions[i].autres[j]==pidDest)
+                              tab->connexions[i].autres[j]=0;
+                      break;
+                      }
+
+      case SEND : 
+      {
                       fprintf(stderr,"(SERVEUR %d) Requete SEND reçue de %d\n",getpid(),m.expediteur);
+                      char nomExp[20];
+                      int ligne=-1;
+
+                      for(i=0;i<6;i++)
+                        if(tab->connexions[i].pidFenetre==m.expediteur)
+                        {
+                          strcpy(nomExp,tab->connexions[i].nom);
+                          ligne=i;
+                          break;
+                        }
+
+                      for(j=0;j<5;j++)
+                      {
+                        int pidDest = tab->connexions[ligne].autres[j];
+                        if(pidDest!=0)
+                        {
+                          reponse.type = pidDest;
+                          reponse.requete = SEND;
+                          strcpy(reponse.data1,nomExp);
+                          strcpy(reponse.texte,m.texte);
+                          msgsnd(idQ,&reponse,sizeof(MESSAGE)-sizeof(long),0);
+                          kill(pidDest,SIGUSR1);
+                        }
+                      }
                       break; 
+                      }
 
       case UPDATE_PUB :
                       fprintf(stderr,"(SERVEUR %d) Requete UPDATE_PUB reçue de %d\n",getpid(),m.expediteur);

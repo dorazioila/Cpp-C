@@ -393,7 +393,13 @@ void WindowClient::on_pushButtonLogout_clicked()
 
 void WindowClient::on_pushButtonEnvoyer_clicked()
 {
-    // TO DO
+    MESSAGE m;
+    m.type = 1;
+    m.expediteur = getpid();
+    m.requete = SEND;
+    strcpy(m.texte,getAEnvoyer());
+    msgsnd(idQ,&m,sizeof(MESSAGE)-sizeof(long),0);
+    setAEnvoyer("");
 }
 
 void WindowClient::on_pushButtonConsulter_clicked()
@@ -442,7 +448,17 @@ void WindowClient::on_checkBox1_clicked(bool checked)
     if (checked)
     {
         ui->checkBox1->setText("Accepté");
-        // TO DO (etape 2)
+        MESSAGE m;
+        m.type = 1;
+        m.expediteur = getpid();
+
+        if(checked)
+          m.requete = ACCEPT_USER;
+        else
+          m.requete = REFUSE_USER;
+
+        strcpy(m.data1,getPersonneConnectee(1));
+        msgsnd(idQ,&m,sizeof(MESSAGE)-sizeof(long),0);
     }
     else
     {
@@ -455,8 +471,18 @@ void WindowClient::on_checkBox2_clicked(bool checked)
 {
     if (checked)
     {
-        ui->checkBox2->setText("Accepté");
-        // TO DO (etape 2)
+        ui->checkBox1->setText("Accepté");
+        MESSAGE m;
+        m.type = 1;
+        m.expediteur = getpid();
+
+        if(checked)
+          m.requete = ACCEPT_USER;
+        else
+          m.requete = REFUSE_USER;
+
+        strcpy(m.data1,getPersonneConnectee(2));
+        msgsnd(idQ,&m,sizeof(MESSAGE)-sizeof(long),0);
     }
     else
     {
@@ -469,8 +495,18 @@ void WindowClient::on_checkBox3_clicked(bool checked)
 {
     if (checked)
     {
-        ui->checkBox3->setText("Accepté");
-        // TO DO (etape 2)
+        ui->checkBox1->setText("Accepté");
+        MESSAGE m;
+        m.type = 1;
+        m.expediteur = getpid();
+
+        if(checked)
+          m.requete = ACCEPT_USER;
+        else
+          m.requete = REFUSE_USER;
+
+        strcpy(m.data1,getPersonneConnectee(3));
+        msgsnd(idQ,&m,sizeof(MESSAGE)-sizeof(long),0);
     }
     else
     {
@@ -483,8 +519,18 @@ void WindowClient::on_checkBox4_clicked(bool checked)
 {
     if (checked)
     {
-        ui->checkBox4->setText("Accepté");
-        // TO DO (etape 2)
+        ui->checkBox1->setText("Accepté");
+        MESSAGE m;
+        m.type = 1;
+        m.expediteur = getpid();
+
+        if(checked)
+          m.requete = ACCEPT_USER;
+        else
+          m.requete = REFUSE_USER;
+
+        strcpy(m.data1,getPersonneConnectee(4));
+        msgsnd(idQ,&m,sizeof(MESSAGE)-sizeof(long),0);
     }
     else
     {
@@ -497,8 +543,18 @@ void WindowClient::on_checkBox5_clicked(bool checked)
 {
     if (checked)
     {
-        ui->checkBox5->setText("Accepté");
-        // TO DO (etape 2)
+        ui->checkBox1->setText("Accepté");
+        MESSAGE m;
+        m.type = 1;
+        m.expediteur = getpid();
+
+        if(checked)
+          m.requete = ACCEPT_USER;
+        else
+          m.requete = REFUSE_USER;
+
+        strcpy(m.data1,getPersonneConnectee(5));
+        msgsnd(idQ,&m,sizeof(MESSAGE)-sizeof(long),0);
     }
     else
     {
@@ -519,6 +575,7 @@ void handlerSIGUSR1(int sig)
       switch(m.requete)
       {
         case LOGIN :
+        {
                     if (strcmp(m.data1,"OK") == 0)
                     {
                       fprintf(stderr,"(CLIENT %d) Login OK\n",getpid());
@@ -527,19 +584,29 @@ void handlerSIGUSR1(int sig)
                       // ...
                     }
                     else w->dialogueErreur("Login...",m.texte);
-                    break;
+                    break;}
 
         case ADD_USER :
-                    // TO DO
-                    break;
+        {
+                    for(int i=1;i<=5;i++)
+                    if(strcmp(w->getPersonneConnectee(i),"")==0)
+                    {
+                      w->setPersonneConnectee(i,m.data1);
+                      break;
+                    }
+                    break;}
 
         case REMOVE_USER :
-                    // TO DO
-                    break;
+        {
+                    for(int i=1;i<=5;i++)
+                    if(strcmp(w->getPersonneConnectee(i),m.data1)==0)
+                      w->setPersonneConnectee(i,"");
+                    break;}
 
         case SEND :
-                    // TO DO
-                    break;
+        {
+                    w->ajouteMessage(m.data1,m.texte);
+                    break;}
 
         case CONSULT :
                   // TO DO
