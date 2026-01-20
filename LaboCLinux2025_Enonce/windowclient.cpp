@@ -554,60 +554,70 @@ void WindowClient::on_checkBox5_clicked(bool checked)
 void handlerSIGUSR1(int sig)
 {
     MESSAGE m;
-      fprintf(stderr,"[DEBUG CLIENT %d] Reçu requête %d : %s\n",
-        getpid(), m.requete, m.data1);
-      if(msgrcv(idQ,&m,sizeof(MESSAGE)-sizeof(long),getpid(),0) == -1)
-      return;
-      switch(m.requete)
-      {
-        case LOGIN :
+
+    // Lire TOUS les messages destinés à ce client
+    while(msgrcv(idQ, &m, sizeof(MESSAGE)-sizeof(long), getpid(), IPC_NOWAIT) != -1)
+    {
+        switch(m.requete)
         {
-                    if (strcmp(m.data1,"OK") == 0)
+            case LOGIN :
+            {
+                if (strcmp(m.data1,"OK") == 0)
+                {
+                    fprintf(stderr,"(CLIENT %d) Login OK\n",getpid());
+                    w->loginOK();
+                    w->dialogueMessage("Login...",m.texte);
+                }
+                else w->dialogueErreur("Login...",m.texte);
+                break;
+            }
+
+            case ADD_USER :
+            {
+                bool deja = false;
+
+                // vérifier si déjà présent
+                for(int i=1;i<=5;i++)
+                {
+                    if(strcmp(w->getPersonneConnectee(i), m.data1) == 0)
                     {
-                      fprintf(stderr,"(CLIENT %d) Login OK\n",getpid());
-                      w->loginOK();
-                      w->dialogueMessage("Login...",m.texte);
-                      // ...
+                        deja = true;
+                        break;
                     }
-                    else w->dialogueErreur("Login...",m.texte);
-                    break;}
+                }
 
-        case ADD_USER :
-        {
-                  for(int i=1;i<=5;i++)
-                  {
-                      const char* p = w->getPersonneConnectee(i);
-                      if(p != NULL && strcmp(p, m.data1) == 0)
-                          return;
-                  }
-
-                  // Ajouter dans première case vide
-                  for(int i=1;i<=5;i++)
-                  {
-                      const char* p = w->getPersonneConnectee(i);
-                      if(p != NULL && strlen(p) == 0)
-                      {
-                          w->setPersonneConnectee(i, m.data1);
-                          break;
-                      }
-                  }
-              }
-              break;
-
-        case REMOVE_USER :
-        {
+                // ajouter dans première case vide
+                if(!deja)
+                {
                     for(int i=1;i<=5;i++)
-                    if(strcmp(w->getPersonneConnectee(i),m.data1)==0)
-                      w->setPersonneConnectee(i,"");
-                    break;}
+                    {
+                        if(strlen(w->getPersonneConnectee(i)) == 0)
+                        {
+                            w->setPersonneConnectee(i, m.data1);
+                            break;
+                        }
+                    }
+                }
+                break;
+            }
 
-        case SEND :
-        {
-                    w->ajouteMessage(m.data1,m.texte);
-                    break;}
+            case REMOVE_USER :
+            {
+                for(int i=1;i<=5;i++)
+                    if(strcmp(w->getPersonneConnectee(i), m.data1) == 0)
+                        w->setPersonneConnectee(i,"");
+                break;
+            }
 
-        case CONSULT :
-                  // TO DO
-                  break;
-      }
+            case SEND :
+            {
+                w->ajouteMessage(m.data1,m.texte);
+                break;
+            }
+
+            case CONSULT :
+                break;
+        }
+    }
 }
+
