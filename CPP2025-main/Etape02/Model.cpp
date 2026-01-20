@@ -13,7 +13,7 @@ Model::Model() // constructeur par défaut
     setBasePrice(15000);
 }
 
-Model::Model(const char* n, int p, Engine e, float bp) // constructeur d'initialisation
+Model::Model(const char* n, int p, Engine e, float bp) 
 {
     name = nullptr;
     if (n != nullptr) {
@@ -24,7 +24,7 @@ Model::Model(const char* n, int p, Engine e, float bp) // constructeur d'initial
     setBasePrice(bp);
 }
 
-Model::Model(const Model& mod) // constructeur de copie
+Model::Model(const Model& mod) 
 {
     name = nullptr;
     if (mod.getName() != nullptr) {
@@ -35,7 +35,7 @@ Model::Model(const Model& mod) // constructeur de copie
     setBasePrice(mod.getBasePrice());
 }
 
-Model& Model::operator=(const Model& mod) // opérateur d'affectation
+Model& Model::operator=(const Model& mod) 
 {
     if (this != &mod) {
         setName(mod.getName());

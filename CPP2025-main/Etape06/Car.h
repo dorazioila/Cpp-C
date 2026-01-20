@@ -15,25 +15,25 @@ private:
     Model model;
 	Option* options[5];
 public:
-	Car(); // constructeur par défaut
-	Car(const std::string& n, const Model& m, Option* options[5] = nullptr); // constructeur d'initialisation
-	Car(const Car& car); // constructeur de copie
+	Car(); 
+	Car(const std::string& n, const Model& m, Option* options[5] = nullptr);  
+	Car(const Car& car); 
 
 	~Car();
 
-	Car& operator=(const Car& mod); // opérateur d'affectation
-	Car operator+(const Option& op) const; // opérateur d'ajout d'option
-	friend Car operator+(const Option& op, const Car& car); // opérateur d'ajout d'option (option + car)
-	Car operator-(const std::string code) const; // opérateur de retrait d'option par code
-	Car operator-(const Option& op) const; // opérateur de retrait d'option par option
-	bool operator>(const Car& car) const; // opérateur de comparaison >
-	bool operator<(const Car& car) const; // opérateur de comparaison <
-	bool operator==(const Car& car) const; // opérateur de comparaison d'égalité
-	Option* operator[](int index); // opérateur d'accès aux options
-	Option* operator[](int index) const; // opérateur d'accès aux options (const)
+	Car& operator=(const Car& mod); 
+	Car operator+(const Option& op) const; 
+	friend Car operator+(const Option& op, const Car& car); 
+	Car operator-(const std::string code) const; 
+	Car operator-(const Option& op) const; 
+	bool operator>(const Car& car) const; 
+	bool operator<(const Car& car) const; 
+	bool operator==(const Car& car) const; 
+	Option* operator[](int index); 
+	Option* operator[](int index) const; 
 
-	friend std::ostream& operator<<(std::ostream& os, const Car& car); // opérateur d'insertion (XML)
-    friend std::istream& operator>>(std::istream& is, Car& car); // opérateur d'extraction (XML)
+	friend std::ostream& operator<<(std::ostream& os, const Car& car);
+    friend std::istream& operator>>(std::istream& is, Car& car); 
 
 	void setName(const std::string& n);
 	const std::string& getName() const;
@@ -51,4 +51,4 @@ public:
 
 }
 
-#endif // CAR_H
+#endif 

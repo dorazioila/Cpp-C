@@ -8,9 +8,7 @@ template<typename T>
 const char XmlFileSerializer<T>::WRITE = 'W';
 
 
-/* ============================================================
-   CONSTRUCTEUR
-   ============================================================ */
+
 template<typename T>
 XmlFileSerializer<T>::XmlFileSerializer(const std::string& fn, char m, const std::string& cn)
     : filename(fn), mode(m), collectionName(cn)
@@ -33,7 +31,7 @@ XmlFileSerializer<T>::XmlFileSerializer(const std::string& fn, char m, const std
                                             XmlFileSerializerException::FILE_NOT_FOUND);
 
         readXmlHeader();
-        readStartCollection();   // met à jour collectionName depuis le fichier
+        readStartCollection();   
     }
     else {
         throw XmlFileSerializerException("Mode invalide.", XmlFileSerializerException::NOT_ALLOWED);
@@ -41,9 +39,7 @@ XmlFileSerializer<T>::XmlFileSerializer(const std::string& fn, char m, const std
 }
 
 
-/* ============================================================
-   DESTRUCTEUR
-   ============================================================ */
+
 template<typename T>
 XmlFileSerializer<T>::~XmlFileSerializer()
 {
@@ -55,9 +51,7 @@ XmlFileSerializer<T>::~XmlFileSerializer()
 }
 
 
-/* ============================================================
-   WRITE(T)
-   ============================================================ */
+
 template<typename T>
 void XmlFileSerializer<T>::write(const T& val)
 {
@@ -69,9 +63,7 @@ void XmlFileSerializer<T>::write(const T& val)
 }
 
 
-/* ============================================================
-   READ()
-   ============================================================ */
+
 template<typename T>
 T XmlFileSerializer<T>::read()
 {
@@ -82,7 +74,7 @@ T XmlFileSerializer<T>::read()
     std::streampos pos = file.tellg();
 
     std::string token;
-    file >> token;  // lit un mot (ou balise)
+    file >> token;  
 
     std::string endTag = "</" + collectionName + ">";
 
@@ -90,7 +82,7 @@ T XmlFileSerializer<T>::read()
         throw XmlFileSerializerException("Fin de fichier XML",
                                          XmlFileSerializerException::END_OF_FILE);
 
-    // Sinon, on doit revenir en arrière avant la lecture
+    
     file.seekg(pos);
 
     T obj;
@@ -99,9 +91,7 @@ T XmlFileSerializer<T>::read()
 }
 
 
-/* ============================================================
-   ÉCRITURE XML
-   ============================================================ */
+
 template<typename T>
 void XmlFileSerializer<T>::writeXmlHeader()
 {
@@ -121,9 +111,7 @@ void XmlFileSerializer<T>::writeEndCollection()
 }
 
 
-/* ============================================================
-   LECTURE XML
-   ============================================================ */
+
 template<typename T>
 void XmlFileSerializer<T>::readXmlHeader()
 {
@@ -137,10 +125,10 @@ void XmlFileSerializer<T>::readStartCollection()
     std::string line;
     std::getline(file, line);
 
-    // line devrait être du type : <clients> ou <whatever>
+    
     if (line.size() > 2 && line[0] == '<' && line[1] != '/')
     {
-        // extraire collectionName depuis la balise
+        
         collectionName = line.substr(1, line.size() - 2);
     }
 }

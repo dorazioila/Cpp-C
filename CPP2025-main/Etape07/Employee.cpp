@@ -52,12 +52,12 @@ std::string Employee::getPassword() const {
 }
 
 void Employee::setPassword(const std::string& mdp) {
-    // Vérifier la longueur du mot de passe
+    
     if (mdp.length() < 6) {
         throw PasswordException("Le mot de passe doit contenir au moins 6 caracteres", PasswordException::INVALID_LENGTH);
     }
     
-    // Vérifier la présence d'au moins une lettre
+    
     bool hasAlpha = false;
     for (char c : mdp) {
         if (std::isalpha(c)) {
@@ -69,7 +69,7 @@ void Employee::setPassword(const std::string& mdp) {
         throw PasswordException("Le mot de passe doit contenir au moins une lettre", PasswordException::ALPHA_MISSING);
     }
     
-    // Vérifier la présence d'au moins un chiffre
+    
     bool hasDigit = false;
     for (char c : mdp) {
         if (std::isdigit(c)) {
@@ -81,7 +81,7 @@ void Employee::setPassword(const std::string& mdp) {
         throw PasswordException("Le mot de passe doit contenir au moins un chiffre", PasswordException::DIGIT_MISSING);
     }
     
-    // Si toutes les validations sont passées, définir le mot de passe
+    
     if (password != nullptr) {
         delete password;
     }

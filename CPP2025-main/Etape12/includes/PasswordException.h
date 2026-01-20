@@ -8,7 +8,7 @@ class PasswordException : public Exception {
         int code;
 
     public:
-        // Codes d'erreur
+        
         static const int INVALID_LENGTH = 1;
         static const int ALPHA_MISSING = 2;
         static const int DIGIT_MISSING = 3;

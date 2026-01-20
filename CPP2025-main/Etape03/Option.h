@@ -12,18 +12,18 @@ namespace carconfig {
         float price;
 
     public:
-        Option(); // constructeur par défaut
-        Option(const std::string code, const std::string label, float price); // constructeur d'initialisation
-        Option(const Option& op); // constructeur de copie
+        Option(); 
+        Option(const std::string code, const std::string label, float price); 
+        Option(const Option& op); 
 
         ~Option();
 
-        Option& operator=(const Option& op); // opérateur d'affectation
-        Option& operator--(); // opérateur de pré-décrémentation
-        Option operator--(int); // opérateur de post-décrémentation
+        Option& operator=(const Option& op); 
+        Option& operator--(); 
+        Option operator--(int); 
 
-        friend std::ostream& operator<<(std::ostream& os, const Option& op); // opérateur d'insertion
-		friend std::istream& operator>>(std::istream& is, Option& op); // opérateur d'extraction
+        friend std::ostream& operator<<(std::ostream& os, const Option& op); 
+		friend std::istream& operator>>(std::istream& is, Option& op); 
 
         void setCode(const std::string code);
         const std::string getCode() const;

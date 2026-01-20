@@ -75,39 +75,39 @@ std::ostream& operator<<(std::ostream& s, const Client& c) {
 std::istream& operator>>(std::istream& s, Client& c) {
     std::string tag;
 
-    // <Client>
+    
     std::getline(s, tag);
 
-    // <lastName>
-    std::getline(s, tag);              // <lastName>
+    
+    std::getline(s, tag);              
     std::string tmpLastName;
-    std::getline(s, tmpLastName);      // valeur complète
+    std::getline(s, tmpLastName);      
     c.setLastName(tmpLastName);
-    std::getline(s, tag);              // </lastName>
+    std::getline(s, tag);              
 
-    // <firstName>
-    std::getline(s, tag);              // <firstName>
+    
+    std::getline(s, tag);              
     std::string tmpFirstName;
-    std::getline(s, tmpFirstName);     // valeur complète
+    std::getline(s, tmpFirstName);     
     c.setFirstName(tmpFirstName);
-    std::getline(s, tag);              // </firstName>
+    std::getline(s, tag);              
 
-    // <id>
-    std::getline(s, tag);              // <id>
+    
+    std::getline(s, tag);              
     int tmpId;
     std::getline(s, tag);              
     tmpId = std::stoi(tag);
     c.setId(tmpId);
-    std::getline(s, tag);              // </id>
+    std::getline(s, tag);              
 
-    // <gsm>
-    std::getline(s, tag);              // <gsm>
+    
+    std::getline(s, tag);              
     std::string tmpGsm;
-    std::getline(s, tmpGsm);           // valeur complète
+    std::getline(s, tmpGsm);           
     c.setGsm(tmpGsm);
-    std::getline(s, tag);              // </gsm>
+    std::getline(s, tag);              
 
-    // </Client>
+    
     std::getline(s, tag);
 
     return s;

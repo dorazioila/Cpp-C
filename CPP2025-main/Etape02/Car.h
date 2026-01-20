@@ -14,8 +14,8 @@ private:
     Model model;
 	Option* options[5];
 public:
-	Car(); // constructeur par défaut
-	Car(const std::string& n, const Model& m, Option* options[5] = nullptr); // constructeur d'initialisation
+	Car(); 
+	Car(const std::string& n, const Model& m, Option* options[5] = nullptr); 
 	Car(const Car& car); // constructeur de copie
 
 	~Car();

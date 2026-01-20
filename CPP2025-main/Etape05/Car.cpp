@@ -157,7 +157,7 @@ const carconfig::Model& carconfig::Car::getModel() const
 
 void carconfig::Car::addOption(const carconfig::Option &option)
 {
-    // Vérifier si la voiture contient déjà 5 options
+    
     bool hasEmptySlot = false;
     for (int i = 0; i < 5; ++i) {
         if (options[i] == nullptr) {
@@ -169,14 +169,14 @@ void carconfig::Car::addOption(const carconfig::Option &option)
         throw OptionException("La voiture contient deja 5 options");
     }
     
-    // Vérifier si l'option est déjà présente (par code)
+    
     for (int i = 0; i < 5; ++i) {
         if (options[i] != nullptr && options[i]->getCode() == option.getCode()) {
             throw OptionException("L'option est deja presente dans la voiture");
         }
     }
     
-    // Ajouter l'option
+    
     for (int i = 0; i < 5; ++i) {
         if (options[i] == nullptr) {
             options[i] = new carconfig::Option(option);

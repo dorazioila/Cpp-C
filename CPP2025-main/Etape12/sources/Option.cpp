@@ -55,7 +55,7 @@ void Option::display() const {
     std::cout << "Option: " << code << " - " << label << " (" << price << ")\n";
 }
 
-// Serialisation XML pour Option
+
 std::ostream& operator<<(std::ostream& os, const Option& op) {
     os << "<Option>\n";
     os << "<code>\n" << op.code << "\n</code>\n";
@@ -65,36 +65,36 @@ std::ostream& operator<<(std::ostream& os, const Option& op) {
     return os;
 }
 
-// Désérialisation XML pour Option
+
 std::istream& operator>>(std::istream& is, Option& op) {
     std::string line;
-    std::string temp;  // variable temporaire
+    std::string temp;  
 
-    // <Option>
+    
     std::getline(is, line);
 
-    // <code>
-    std::getline(is, line);    // <code>
+    
+    std::getline(is, line);    
     std::getline(is, op.code);
-    std::getline(is, line);    // </code>
+    std::getline(is, line);    
 
-    // <label>
-    std::getline(is, line);    // <label>
-    std::getline(is, temp);    // on lit dans temp
-    op.label = temp;           // on assigne après
-    std::getline(is, line);    // </label>
+    
+    std::getline(is, line);    
+    std::getline(is, temp);    
+    op.label = temp;           
+    std::getline(is, line);    
 
-    // <price>
-    std::getline(is, line);    // <price>
-    std::getline(is, temp);    // lit le prix dans temp
+    
+    std::getline(is, line);    
+    std::getline(is, temp);    
     op.price = std::stof(temp);
-    std::getline(is, line);    // </price>
+    std::getline(is, line);    
 
-    // </Option>
+    
     std::getline(is, line);
 
     return is;
 }
 
 
-} // namespace carconfig  
+} 

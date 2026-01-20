@@ -30,5 +30,5 @@ Actor& Actor::operator=(const Actor& a) {
 }
 
 Actor::~Actor() {
-    // Destructeur virtuel - aucune ressource spécifique à libérer
+    
 }

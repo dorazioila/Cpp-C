@@ -6,28 +6,28 @@
 
 using namespace carconfig;
 
-Option::Option() // constructeur par défaut
+Option::Option() 
 {
     setCode("AAAA");
     setLabel("default");
-    setPrice(1.0f);  // Prix positif par défaut pour éviter l'exception
+    setPrice(1.0f);  
 }
 
-Option::Option(const std::string code, const std::string label, float price) // constructeur d'initialisation
+Option::Option(const std::string code, const std::string label, float price) 
 {
     setCode(code);
     setLabel(label);
     setPrice(price);
 }
 
-Option::Option(const Option& op) // constructeur de copie
+Option::Option(const Option& op) 
 {
     setCode(op.getCode());
     setLabel(op.getLabel());
     setPrice(op.getPrice());
 }
 
-Option& Option::operator=(const Option& op) // opérateur d'affectation
+Option& Option::operator=(const Option& op) 
 {
     if (this != &op) {
         setCode(op.getCode());
@@ -39,7 +39,7 @@ Option& Option::operator=(const Option& op) // opérateur d'affectation
 
 namespace carconfig {
 
-std::ostream& operator<<(std::ostream& os, const Option& op) // opérateur d'insertion
+std::ostream& operator<<(std::ostream& os, const Option& op) 
 {
     os << "Code : " << op.getCode() << std::endl;
     os << "Label : " << op.getLabel() << std::endl;
@@ -47,7 +47,7 @@ std::ostream& operator<<(std::ostream& os, const Option& op) // opérateur d'ins
     return os;
 }
 
-std::istream& operator>>(std::istream& is, Option& op) // opérateur d'extraction
+std::istream& operator>>(std::istream& is, Option& op) 
 {
     std::string code;
     std::string label;
@@ -58,12 +58,11 @@ std::istream& operator>>(std::istream& is, Option& op) // opérateur d'extractio
     try {
         op.setCode(code);
     } catch (const OptionException& e) {
-        // Remettre le flux dans un état valide avant de relancer
         is.clear();
         throw;
     }
 
-    is.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Vider le buffer d'entrée
+    is.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
 
     std::cout << "Entrez le label : ";
     std::getline(is, label);
@@ -88,23 +87,23 @@ std::istream& operator>>(std::istream& is, Option& op) // opérateur d'extractio
 
 }
 
-Option& Option::operator--() // opérateur de pré-décrémentation
+Option& Option::operator--() 
 {
     if (price - 50.0f < 0.0f) {
         throw OptionException("Impossible de diminuer le prix : le prix deviendrait negatif");
     }
-    price -= 50.0f; // Décrémente le prix de 50 unités
+    price -= 50.0f; 
     return *this;
 }
 
-Option Option::operator--(int) // opérateur de post-décrémentation
+Option Option::operator--(int) 
 {
-    Option temp = *this; // Sauvegarde l'état actuel
+    Option temp = *this; 
     if (price - 50.0f < 0.0f) {
         throw OptionException("Impossible de diminuer le prix : le prix deviendrait negatif");
     }
-    price -= 50.0f; // Décrémente le prix de 50 unités
-    return temp; // Retourne l'état avant la décrémentation
+    price -= 50.0f; 
+    return temp; 
 }
 
 Option::~Option()

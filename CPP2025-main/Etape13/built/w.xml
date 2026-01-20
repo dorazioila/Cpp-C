@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Car>
+<name>
+w
+</name>
+<model>
+<Model>
+<name>
+208 Allure 1.2 PureTech 130
+</name>
+<power>
+130
+</power>
+<engine>
+essence
+</engine>
+<basePrice>
+22250
+</basePrice>
+<image>
+208.jpg
+</image>
+</Model>
+</model>
+<options>
+<Option>
+<code>
+VD09
+</code>
+<label>
+Vitres laterales arrieres surteintees
+</label>
+<price>
+150
+</price>
+</Option>
+<Option>
+<code>
+OK01
+</code>
+<label>
+Toit panoramique vitre
+</label>
+<price>
+450
+</price>
+</Option>
+<Option>
+<code>
+J2U7
+</code>
+<label>
+Pack Cool Air conditionne
+</label>
+<price>
+850
+</price>
+</Option>
+</options>
+</Car>

@@ -1,7 +1,7 @@
 #include "Person.h"
 #include <iostream>
 
-// constructeurs
+
 Person::Person() {
     lastName = "";
     firstName = "";
@@ -18,7 +18,7 @@ Person::Person(const Person& p)
     firstName = p.firstName;
 }
 
-// getters
+
 std::string Person::getLastName() const {
     return lastName;
 }
@@ -27,7 +27,7 @@ std::string Person::getFirstName() const {
     return firstName;
 }
 
-// setters
+
 void Person::setLastName(const std::string& ln) {
     lastName = ln;
 }
@@ -36,7 +36,7 @@ void Person::setFirstName(const std::string& fn) {
     firstName = fn;
 }
 
-// operators
+
 std::ostream& operator<<(std::ostream& os, const Person& p) {
     os << p.lastName << " " << p.firstName;
     return os;
@@ -59,5 +59,5 @@ Person& Person::operator=(const Person& p) {
 }
 
 Person::~Person() {
-    // Destructeur virtuel - aucune ressource spécifique à libérer
+    
 }

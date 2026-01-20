@@ -12,9 +12,9 @@ private:
 	float basePrice;
 
 public:
-	Model(); // constructeur par défaut
-	Model(const char* n, int p, Engine e, float bp); // constructeur d'initialisation
-	Model(const Model& mod); // constructeur de copie
+	Model(); 
+	Model(const char* n, int p, Engine e, float bp); 
+	Model(const Model& mod); 
 
 	~Model();
 

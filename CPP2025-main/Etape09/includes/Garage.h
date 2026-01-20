@@ -35,17 +35,17 @@ public:
     static carconfig::Car& getCurrentProject();
     static void resetCurrentProject();
     static int idLoggedEmployee;
-    // Models
+    
     void addModel(const carconfig::Model& m);
     void displayAllModels() const;
     carconfig::Model getModel(int index) const;
     int getNbModels() const;
-    // Options
+    
     void addOption(const carconfig::Option& o);
     void displayAllOptions() const;
-    carconfig::Option getOption(int index) const;  // ← const ajouté
+    carconfig::Option getOption(int index) const;  
     int getNbOptions() const;
-    // Clients
+    
     int addClient(const std::string& ln, const std::string& fn, const std::string& gsm);
     void displayClients() const;
     void deleteClientByIndex(int index);
@@ -54,7 +54,7 @@ public:
     Client findClientById(int id) const;
     const std::set<Client>& getClients() const;
 
-    // Employees
+    
     int addEmployee(const std::string& ln, const std::string& fn, const std::string& login, const std::string& role);
     void displayEmployees() const;
     void deleteEmployeeByIndex(int index);

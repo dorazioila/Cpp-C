@@ -33,9 +33,9 @@ carconfig::Model Garage::getModel(int index) const
     return *it;
 }
 
-// ===============================================
-// OPTIONS
-// ===============================================
+
+
+
 
 void Garage::addOption(const carconfig::Option& o)
 {

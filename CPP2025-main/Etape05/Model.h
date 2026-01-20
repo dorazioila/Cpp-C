@@ -16,16 +16,16 @@ namespace carconfig {
 		float basePrice;
 
 	public:
-		Model(); // constructeur par défaut
-		Model(const char* n, int p, Engine e, float bp); // constructeur d'initialisation
-		Model(const Model& mod); // constructeur de copie
+		Model(); 
+		Model(const char* n, int p, Engine e, float bp); 
+		Model(const Model& mod); 
 
 		~Model();
 
-		Model& operator=(const Model& mod); // opérateur d'affectation
+		Model& operator=(const Model& mod); 
 		
-		friend std::ostream& operator<<(std::ostream& os, const Model& mod); // opérateur d'insertion
-		friend std::istream& operator>>(std::istream& is, Model& mod); // opérateur d'extraction
+		friend std::ostream& operator<<(std::ostream& os, const Model& mod); 
+		friend std::istream& operator>>(std::istream& is, Model& mod); 
 
 		void setPower(int p);
 		int getPower() const;

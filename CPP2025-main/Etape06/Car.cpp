@@ -110,13 +110,13 @@ std::ostream& operator<<(std::ostream& s, const Car& car)
       << "</name>\n";
 
     s << "<model>\n";
-    s << car.model;   // Appel Model::operator<<
+    s << car.model;   
     s << "</model>\n";
 
     s << "<options>\n";
     for (int i = 0; i < 5; ++i) {
         if (car.options[i] != nullptr) {
-            s << *(car.options[i]);   // Appel Option::operator<<
+            s << *(car.options[i]);   
         }
     }
     s << "</options>\n";
@@ -126,28 +126,25 @@ std::ostream& operator<<(std::ostream& s, const Car& car)
     return s;
 }
 
-// Désérialisation XML
 std::istream& operator>>(std::istream& s, Car& car)
 {
     std::string ligne;
 
-    // <Car>
+
     std::getline(s, ligne);
 
-    // <name>
-    std::getline(s, ligne);        // <name>
-    std::getline(s, car.name);     // lire le nom complet 
-    std::getline(s, ligne);        // </name>
 
-    // <model>
-    std::getline(s, ligne);        // <model>
-    s >> car.model;                // Appel Model::operator>> 
-    std::getline(s, ligne);        // </model>
+    std::getline(s, ligne);        
+    std::getline(s, car.name);     
+    std::getline(s, ligne);       
 
-    // <options>
-    std::getline(s, ligne);        // <options>
+    std::getline(s, ligne);        
+    s >> car.model;                
+    std::getline(s, ligne);        
 
-    // nettoyer avant lecture
+    std::getline(s, ligne);        
+
+    
     for (int i = 0; i < 5; ++i) {
         delete car.options[i];
         car.options[i] = nullptr;
@@ -156,26 +153,26 @@ std::istream& operator>>(std::istream& s, Car& car)
     int index = 0;
     while (true) {
         std::streampos pos = s.tellg();
-        std::getline(s, ligne);    // lire la première ligne de l'option ou </options>
+        std::getline(s, ligne);   
 
         if (ligne == "</options>") {
             break;
         }
 
-        // revenir en arrière pour que Option::operator>> lise <Option>
+        
         s.seekg(pos);
 
         if (index < 5) {
             car.options[index] = new Option();
-            s >> *car.options[index];   // Option::operator>>
+            s >> *car.options[index];   
             index++;
         } else {
             Option tmp;
-            s >> tmp;                   // ignorer les options supplémentaires
+            s >> tmp;                  
         }
     }
 
-    // </Car>
+   
     std::getline(s, ligne);
 
     return s;
@@ -279,4 +276,4 @@ void Car::display() const
     }
 }
 
-} // namespace carconfig  
+} 

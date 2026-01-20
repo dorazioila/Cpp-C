@@ -59,5 +59,5 @@ Person& Person::operator=(const Person& p) {
 }
 
 Person::~Person() {
-    // Destructeur virtuel - aucune ressource spécifique à libérer
+    
 }

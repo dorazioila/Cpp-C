@@ -4,7 +4,7 @@ using namespace std;
 #include <iostream>
 #include <cstring>
 
-Model::Model() // constructeur par défaut
+Model::Model() 
 {
     name = nullptr;
     setName("default");
@@ -13,7 +13,7 @@ Model::Model() // constructeur par défaut
     setBasePrice(15000);
 }
 
-Model::Model(const char* n, int p, Engine e, float bp) // constructeur d'initialisation
+Model::Model(const char* n, int p, Engine e, float bp) 
 {
     name = nullptr;
     setName(n);
@@ -22,7 +22,7 @@ Model::Model(const char* n, int p, Engine e, float bp) // constructeur d'initial
     setBasePrice(bp);
 }
 
-Model::Model(const Model& mod) // constructeur de copie
+Model::Model(const Model& mod) 
 {
     name = nullptr;
     setName(mod.getName());

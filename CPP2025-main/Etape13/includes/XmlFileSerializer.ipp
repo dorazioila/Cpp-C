@@ -33,7 +33,7 @@ XmlFileSerializer<T>::XmlFileSerializer(const std::string& fn, char m, const std
                                             XmlFileSerializerException::FILE_NOT_FOUND);
 
         readXmlHeader();
-        readStartCollection();   // met à jour collectionName depuis le fichier
+        readStartCollection();   
     }
     else {
         throw XmlFileSerializerException("Mode invalide.", XmlFileSerializerException::NOT_ALLOWED);
@@ -82,7 +82,7 @@ T XmlFileSerializer<T>::read()
     std::streampos pos = file.tellg();
 
     std::string token;
-    file >> token;  // lit un mot (ou balise)
+    file >> token;  
 
     std::string endTag = "</" + collectionName + ">";
 
@@ -90,7 +90,7 @@ T XmlFileSerializer<T>::read()
         throw XmlFileSerializerException("Fin de fichier XML",
                                          XmlFileSerializerException::END_OF_FILE);
 
-    // Sinon, on doit revenir en arrière avant la lecture
+    
     file.seekg(pos);
 
     T obj;
@@ -137,10 +137,10 @@ void XmlFileSerializer<T>::readStartCollection()
     std::string line;
     std::getline(file, line);
 
-    // line devrait être du type : <clients> ou <whatever>
+    
     if (line.size() > 2 && line[0] == '<' && line[1] != '/')
     {
-        // extraire collectionName depuis la balise
+        
         collectionName = line.substr(1, line.size() - 2);
     }
 }

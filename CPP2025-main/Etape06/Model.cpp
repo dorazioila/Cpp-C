@@ -94,7 +94,7 @@ std::string Model::toString() const {
     return oss.str();
 }
 
-// Opérateurs (PAS de carconfig:: devant, on est déjà dans le namespace)
+
 std::ostream& operator<<(std::ostream& os, const Model& mod) {  
     os << "<Model>\n";
     os << "<name>\n" << (mod.name ? mod.name : "") << "\n</name>\n";
@@ -116,39 +116,39 @@ std::istream& operator>>(std::istream& is, Model& mod) {
     std::string line;
     std::string temp;
 
-    // <Model>
+    
     std::getline(is, line);
 
-    // <name>
-    std::getline(is, line);      // <name>
-    std::getline(is, temp);      // valeur du name
+    
+    std::getline(is, line);      
+    std::getline(is, temp);      
     mod.setName(temp.c_str());
-    std::getline(is, line);      // </name>
+    std::getline(is, line);      
 
-    // <power>
-    std::getline(is, line);      // <power>
-    std::getline(is, temp);      // valeur du power
+    
+    std::getline(is, line);      
+    std::getline(is, temp);      
     mod.setPower(std::stoi(temp));
-    std::getline(is, line);      // </power>
+    std::getline(is, line);      
 
-        // <engine>
-    std::getline(is, line);              // <engine>
-    std::getline(is, line);              // valeur du engine
+        
+    std::getline(is, line);              
+    std::getline(is, line);              
     if (line == "essence") mod.setEngine(Petrol);
     else if (line == "diesel") mod.setEngine(Diesel);
     else if (line == "electrique") mod.setEngine(Electric);
     else if (line == "hybride") mod.setEngine(Hybrid);
-    else mod.setEngine(Petrol);          // valeur par défaut
-    std::getline(is, line);              // </engine>
+    else mod.setEngine(Petrol);          
+    std::getline(is, line);             
 
 
-    // <basePrice>
-    std::getline(is, line);      // <basePrice>
-    std::getline(is, temp);      // valeur du basePrice
+    
+    std::getline(is, line);     
+    std::getline(is, temp);      
     mod.setBasePrice(std::stof(temp));
-    std::getline(is, line);      // </basePrice>
+    std::getline(is, line);      
 
-    // </Model>
+    
     std::getline(is, line);
 
 
@@ -156,4 +156,4 @@ std::istream& operator>>(std::istream& is, Model& mod) {
     return is;
 }
 
-} // namespace carconfig  
+} 

@@ -11,15 +11,14 @@ class Person {
         std::string firstName;
     
     public:
-        Person(); // constructeur par défaut
-        Person(const std::string& ln, const std::string& fn); // constructeur d'initialisation
-        Person(const Person& p); // constructeur de copie
+        Person(); 
+        Person(const std::string& ln, const std::string& fn); 
+        Person(const Person& p); 
             
-        // getters
+        
         std::string getLastName() const;
         std::string getFirstName() const;
     
-        // setters
         void setLastName(const std::string& ln);
         void setFirstName(const std::string& fn);
     

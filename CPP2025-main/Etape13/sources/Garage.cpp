@@ -30,9 +30,9 @@ carconfig::Model Garage::getModel(int index) const
     return *it;
 }
 
-// ===============================================
-// OPTIONS
-// ===============================================
+
+
+
 
 void Garage::addOption(const carconfig::Option& o)
 {
@@ -52,9 +52,9 @@ carconfig::Option Garage::getOption(int index) const
     return *it;
 }
 
-// ===============================================
-// CLIENTS
-// ===============================================
+
+
+
 
 int Garage::addClient(const std::string& ln, const std::string& fn, const std::string& gsm)
 {
@@ -115,9 +115,9 @@ const std::set<Client>& Garage::getClients() const
 {
     return clients;
 }
-// ===============================================
-// EMPLOYEES
-// ===============================================
+
+
+
 
 int Garage::addEmployee(const std::string& ln, const std::string& fn, const std::string& login, const std::string& role)
 {

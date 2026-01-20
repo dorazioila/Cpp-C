@@ -13,13 +13,13 @@ namespace carconfig {
 		float basePrice;
 
 	public:
-		Model(); // constructeur par défaut
-		Model(const char* n, int p, Engine e, float bp); // constructeur d'initialisation
-		Model(const Model& mod); // constructeur de copie
+		Model(); 
+		Model(const char* n, int p, Engine e, float bp); 
+		Model(const Model& mod); 
 
 		~Model();
 
-		Model& operator=(const Model& mod); // opérateur d'affectation
+		Model& operator=(const Model& mod); 
 
 		void setPower(int p);
 		int getPower() const;

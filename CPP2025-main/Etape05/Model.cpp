@@ -5,7 +5,7 @@
 
 using namespace carconfig;
 
-Model::Model() // constructeur par défaut
+Model::Model() 
 {
     name = nullptr;
     setName("default");
@@ -14,7 +14,7 @@ Model::Model() // constructeur par défaut
     setBasePrice(15000);
 }
 
-Model::Model(const char* n, int p, Engine e, float bp) // constructeur d'initialisation
+Model::Model(const char* n, int p, Engine e, float bp) 
 {
     name = nullptr;
     if (n != nullptr) {
@@ -25,7 +25,7 @@ Model::Model(const char* n, int p, Engine e, float bp) // constructeur d'initial
     setBasePrice(bp);
 }
 
-Model::Model(const Model& mod) // constructeur de copie
+Model::Model(const Model& mod) 
 {
     name = nullptr;
     if (mod.getName() != nullptr) {
@@ -36,7 +36,7 @@ Model::Model(const Model& mod) // constructeur de copie
     setBasePrice(mod.getBasePrice());
 }
 
-Model& Model::operator=(const Model& mod) // opérateur d'affectation
+Model& Model::operator=(const Model& mod) 
 {
     if (this != &mod) {
         setName(mod.getName());
@@ -85,7 +85,7 @@ const char* Model::getName() const
 
 namespace carconfig {
 
-std::ostream& operator<<(std::ostream& os, const Model& mod) // opérateur d'insertion
+std::ostream& operator<<(std::ostream& os, const Model& mod) 
 {
     os << "Nom : " << mod.getName() << std::endl;
     os << "Puissance : " << mod.getPower() << std::endl;
@@ -94,7 +94,7 @@ std::ostream& operator<<(std::ostream& os, const Model& mod) // opérateur d'ins
     return os;
 }
 
-std::istream& operator>>(std::istream& is, Model& mod) // opérateur d'extraction
+std::istream& operator>>(std::istream& is, Model& mod) 
 {
     char buffer[100];
     int power;
@@ -114,14 +114,14 @@ std::istream& operator>>(std::istream& is, Model& mod) // opérateur d'extractio
     if (engineInt >= 0 && engineInt <= 3) {
         mod.setEngine(static_cast<Engine>(engineInt));
     } else {
-        mod.setEngine(Engine::Petrol); // Valeur par défaut
+        mod.setEngine(Engine::Petrol); 
     }
 
     std::cout << "Entrez le prix de base : ";
     is >> basePrice;
     mod.setBasePrice(basePrice);
 
-    // Vider le buffer d'entrée
+    
     is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
     return is;

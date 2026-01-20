@@ -24,8 +24,8 @@ class Client : public Actor {
 
         Client& operator=(const Client& c);
         friend std::ostream& operator<<(std::ostream& os, const Client& c);
-        friend std::istream& operator>>(std::istream& is, Client& c); // ajouté pour désérialisation
+        friend std::istream& operator>>(std::istream& is, Client& c); 
         bool operator<(const Client& other) const { return getId() < other.getId(); }
 };
 
-#endif // CLIENT_H
+#endif 

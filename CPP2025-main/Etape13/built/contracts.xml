@@ -28,4 +28,18 @@ projetTest
 pour marco
 </projectName>
 </Contract>
+<Contract>
+<id>
+11
+</id>
+<vendeurId>
+9
+</vendeurId>
+<clientId>
+10
+</clientId>
+<projectName>
+w
+</projectName>
+</Contract>
 </contracts>
