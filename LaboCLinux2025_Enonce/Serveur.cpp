@@ -95,7 +95,7 @@ int main()
                       if(tab->connexions[i].pidFenetre==0)
                       {
                           tab->connexions[i].pidFenetre = m.expediteur;
-                          strcpy(tab->connexions[i].nom,"-");
+                          strcpy(tab->connexions[i].nom,"");
                           break;
                       }
                       }
@@ -118,10 +118,12 @@ int main()
                       fprintf(stderr,"(SERVEUR %d) Requete LOGIN reçue de %d : --%s--%s--%s--\n",
                       getpid(),m.expediteur,m.data1,m.data2,m.texte);
 
+                      // Enregistrer le nom
                       for(i=0;i<6;i++)
-                        if(tab->connexions[i].pidFenetre==m.expediteur)
-                          strcpy(tab->connexions[i].nom,m.data2);
+                        if(tab->connexions[i].pidFenetre == m.expediteur)
+                          strcpy(tab->connexions[i].nom, m.data2);
 
+                      // Réponse LOGIN au client
                       reponse.type = m.expediteur;
                       reponse.requete = LOGIN;
                       strcpy(reponse.data1,"OK");
@@ -129,26 +131,34 @@ int main()
                       msgsnd(idQ,&reponse,sizeof(MESSAGE)-sizeof(long),0);
                       kill(m.expediteur,SIGUSR1);
 
-                      // Nouveau vers anciens
+                      // Diffuser le nouveau vers les anciens
                       for(i=0;i<6;i++)
                         if(tab->connexions[i].pidFenetre != 0 &&
-                           tab->connexions[i].pidFenetre != m.expediteur)
+                           tab->connexions[i].pidFenetre != m.expediteur &&
+                           strlen(tab->connexions[i].nom) > 0)
                         {
                           reponse.type = tab->connexions[i].pidFenetre;
                           reponse.requete = ADD_USER;
                           strcpy(reponse.data1,m.data2);
+                          fprintf(stderr,"[DEBUG SERVEUR] ADD_USER vers %d : %s\n",
+                          tab->connexions[i].pidFenetre, m.data2);
+
                           msgsnd(idQ,&reponse,sizeof(MESSAGE)-sizeof(long),0);
                           kill(tab->connexions[i].pidFenetre,SIGUSR1);
                         }
 
-                      // Anciens vers nouveau
+                      // Diffuser les anciens vers le nouveau
                       for(i=0;i<6;i++)
                         if(tab->connexions[i].pidFenetre != 0 &&
-                           tab->connexions[i].pidFenetre != m.expediteur)
+                           tab->connexions[i].pidFenetre != m.expediteur &&
+                           strlen(tab->connexions[i].nom) > 0)
                         {
                           reponse.type = m.expediteur;
                           reponse.requete = ADD_USER;
                           strcpy(reponse.data1,tab->connexions[i].nom);
+                          fprintf(stderr,"[DEBUG SERVEUR] ADD_USER vers %d : %s\n",
+                          m.expediteur, tab->connexions[i].nom);
+
                           msgsnd(idQ,&reponse,sizeof(MESSAGE)-sizeof(long),0);
                           kill(m.expediteur,SIGUSR1);
                         }

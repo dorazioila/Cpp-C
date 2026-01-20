@@ -445,122 +445,107 @@ void WindowClient::on_pushButtonModifier_clicked()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::on_checkBox1_clicked(bool checked)
 {
-    if (checked)
-    {
-        ui->checkBox1->setText("Accepté");
         MESSAGE m;
         m.type = 1;
         m.expediteur = getpid();
 
-        if(checked)
-          m.requete = ACCEPT_USER;
+        if (checked)
+        {
+            ui->checkBox1->setText("Accepté");
+            m.requete = ACCEPT_USER;
+        }
         else
-          m.requete = REFUSE_USER;
+        {
+            ui->checkBox1->setText("Refusé");
+            m.requete = REFUSE_USER;
+        }
 
         strcpy(m.data1,getPersonneConnectee(1));
         msgsnd(idQ,&m,sizeof(MESSAGE)-sizeof(long),0);
-    }
-    else
-    {
-        ui->checkBox1->setText("Refusé");
-        // TO DO (etape 2)
-    }
-}
+      }
 
 void WindowClient::on_checkBox2_clicked(bool checked)
 {
-    if (checked)
-    {
-        ui->checkBox1->setText("Accepté");
-        MESSAGE m;
+   MESSAGE m;
         m.type = 1;
         m.expediteur = getpid();
 
-        if(checked)
-          m.requete = ACCEPT_USER;
+        if (checked)
+        {
+            ui->checkBox2->setText("Accepté");
+            m.requete = ACCEPT_USER;
+        }
         else
-          m.requete = REFUSE_USER;
+        {
+            ui->checkBox2->setText("Refusé");
+            m.requete = REFUSE_USER;
+        }
 
         strcpy(m.data1,getPersonneConnectee(2));
         msgsnd(idQ,&m,sizeof(MESSAGE)-sizeof(long),0);
-    }
-    else
-    {
-        ui->checkBox2->setText("Refusé");
-        // TO DO (etape 2)
-    }
 }
 
 void WindowClient::on_checkBox3_clicked(bool checked)
 {
-    if (checked)
-    {
-        ui->checkBox1->setText("Accepté");
-        MESSAGE m;
+    MESSAGE m;
         m.type = 1;
         m.expediteur = getpid();
 
-        if(checked)
-          m.requete = ACCEPT_USER;
+        if (checked)
+        {
+            ui->checkBox3->setText("Accepté");
+            m.requete = ACCEPT_USER;
+        }
         else
-          m.requete = REFUSE_USER;
+        {
+            ui->checkBox3->setText("Refusé");
+            m.requete = REFUSE_USER;
+        }
 
         strcpy(m.data1,getPersonneConnectee(3));
         msgsnd(idQ,&m,sizeof(MESSAGE)-sizeof(long),0);
-    }
-    else
-    {
-        ui->checkBox3->setText("Refusé");
-        // TO DO (etape 2)
-    }
 }
 
 void WindowClient::on_checkBox4_clicked(bool checked)
 {
-    if (checked)
-    {
-        ui->checkBox1->setText("Accepté");
-        MESSAGE m;
+    MESSAGE m;
         m.type = 1;
         m.expediteur = getpid();
 
-        if(checked)
-          m.requete = ACCEPT_USER;
+        if (checked)
+        {
+            ui->checkBox4->setText("Accepté");
+            m.requete = ACCEPT_USER;
+        }
         else
-          m.requete = REFUSE_USER;
+        {
+            ui->checkBox4->setText("Refusé");
+            m.requete = REFUSE_USER;
+        }
 
         strcpy(m.data1,getPersonneConnectee(4));
         msgsnd(idQ,&m,sizeof(MESSAGE)-sizeof(long),0);
-    }
-    else
-    {
-        ui->checkBox4->setText("Refusé");
-        // TO DO (etape 2)
-    }
 }
 
 void WindowClient::on_checkBox5_clicked(bool checked)
 {
-    if (checked)
-    {
-        ui->checkBox1->setText("Accepté");
-        MESSAGE m;
+    MESSAGE m;
         m.type = 1;
         m.expediteur = getpid();
 
-        if(checked)
-          m.requete = ACCEPT_USER;
+        if (checked)
+        {
+            ui->checkBox5->setText("Accepté");
+            m.requete = ACCEPT_USER;
+        }
         else
-          m.requete = REFUSE_USER;
+        {
+            ui->checkBox5->setText("Refusé");
+            m.requete = REFUSE_USER;
+        }
 
         strcpy(m.data1,getPersonneConnectee(5));
         msgsnd(idQ,&m,sizeof(MESSAGE)-sizeof(long),0);
-    }
-    else
-    {
-        ui->checkBox5->setText("Refusé");
-        // TO DO (etape 2)
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -569,9 +554,10 @@ void WindowClient::on_checkBox5_clicked(bool checked)
 void handlerSIGUSR1(int sig)
 {
     MESSAGE m;
-    
-      msgrcv(idQ,&m,sizeof(MESSAGE)-sizeof(long),getpid(),0);
-    
+      fprintf(stderr,"[DEBUG CLIENT %d] Reçu requête %d : %s\n",
+        getpid(), m.requete, m.data1);
+      if(msgrcv(idQ,&m,sizeof(MESSAGE)-sizeof(long),getpid(),0) == -1)
+      return;
       switch(m.requete)
       {
         case LOGIN :
@@ -588,13 +574,25 @@ void handlerSIGUSR1(int sig)
 
         case ADD_USER :
         {
-                    for(int i=1;i<=5;i++)
-                    if(strcmp(w->getPersonneConnectee(i),"")==0)
-                    {
-                      w->setPersonneConnectee(i,m.data1);
-                      break;
-                    }
-                    break;}
+                  for(int i=1;i<=5;i++)
+                  {
+                      const char* p = w->getPersonneConnectee(i);
+                      if(p != NULL && strcmp(p, m.data1) == 0)
+                          return;
+                  }
+
+                  // Ajouter dans première case vide
+                  for(int i=1;i<=5;i++)
+                  {
+                      const char* p = w->getPersonneConnectee(i);
+                      if(p != NULL && strlen(p) == 0)
+                      {
+                          w->setPersonneConnectee(i, m.data1);
+                          break;
+                      }
+                  }
+              }
+              break;
 
         case REMOVE_USER :
         {
