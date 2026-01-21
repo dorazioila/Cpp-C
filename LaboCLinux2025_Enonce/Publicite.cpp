@@ -6,44 +6,74 @@
 #include <sys/shm.h>
 #include <signal.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <unistd.h>
-#include <signal.h>
-#include "protocole.h" // contient la cle et la structure d'un message
+#include "protocole.h"
 
 int idQ, idShm;
-int fd;
 
 int main()
 {
-  // Armement des signaux
-
   // Masquage de SIGINT
   sigset_t mask;
+  sigemptyset(&mask);
   sigaddset(&mask,SIGINT);
   sigprocmask(SIG_SETMASK,&mask,NULL);
 
-  // Recuperation de l'identifiant de la file de messages
+  // Recuperation file de messages
   fprintf(stderr,"(PUBLICITE %d) Recuperation de l'id de la file de messages\n",getpid());
+  idQ = msgget(CLE, 0);
+  if(idQ == -1) { 
+    perror("msgget pub"); 
+    exit(1); 
+  }
 
-  // Recuperation de l'identifiant de la mémoire partagée
+  // Recuperation mémoire partagée
   fprintf(stderr,"(PUBLICITE %d) Recuperation de l'id de la mémoire partagée\n",getpid());
+  idShm = shmget(CLE, 200, 0);
+  if(idShm == -1) { 
+    perror("shmget pub"); 
+    exit(1); 
+  }
 
-  // Attachement à la mémoire partagée
+  char *shmPub = (char*) shmat(idShm, NULL, 0);
+  if(shmPub == (char*)-1) { 
+    perror("shmat pub"); 
+    exit(1); 
+  }
 
-  // Ouverture du fichier de publicité
+  // Ouverture fichier
+  FILE *f = fopen("publicites.dat", "rb");
+  if(!f)
+  {
+      perror("fopen publicites.dat");
+      exit(1);
+  }
+
+  MESSAGE m;
+  PUBLICITE pub;
 
   while(1)
-  {
-  	PUBLICITE pub;
-    // Lecture d'une publicité dans le fichier
+{
+    PUBLICITE pub;
 
-    // Ecriture en mémoire partagée
+    if(fread(&pub, sizeof(PUBLICITE), 1, f) != 1)
+    {
+        rewind(f);
+        continue;
+    }
 
-    // Envoi d'une requete UPDATE_PUB au serveur
+    // Copie sécurisée dans mémoire partagée
+    strncpy(shmPub, pub.texte, 199);
+    shmPub[199] = '\0';
 
-  }
+    // Prévenir le serveur
+    MESSAGE m;
+    m.type = 1;
+    m.expediteur = getpid();
+    m.requete = UPDATE_PUB;
+    msgsnd(idQ, &m, sizeof(MESSAGE)-sizeof(long), 0);
+
+    // Attente
+    sleep(pub.nbSecondes);
 }
-
+}

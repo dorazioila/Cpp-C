@@ -11,32 +11,34 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/shm.h>
 extern WindowClient *w;
 
 #include "protocole.h"
 
 int idQ, idShm;
-#define TIME_OUT 120
+#define TIME_OUT 35
 int timeOut = TIME_OUT;
 bool estConnecte = false;
 bool dejaConnecteAuServeur = false;
+char *shmPub;
 void handlerSIGUSR1(int sig);
 void handlerSIGALRM(int sig);
+void handlerSIGUSR2(int sig);
 void resetTimeOut()
 {
-    alarm(0);                 // annule alarme en cours
-    timeOut = TIME_OUT;       // remet à 120
-    w->setTimeOut(timeOut);   // affiche
-    alarm(1);                 // relance
+    alarm(0);                
+    timeOut = TIME_OUT;       
+    w->setTimeOut(timeOut);   
+    alarm(1);                 
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 WindowClient::WindowClient(QWidget *parent):QMainWindow(parent),ui(new Ui::WindowClient)
 {
-    ui->setupUi(this);
+     ui->setupUi(this);
     ::close(2);
-  
 
     // Recuperation de l'identifiant de la file de messages
     fprintf(stderr,"(CLIENT %d) Recuperation de l'id de la file de messages\n",getpid());
@@ -45,14 +47,29 @@ WindowClient::WindowClient(QWidget *parent):QMainWindow(parent),ui(new Ui::Windo
         perror("msgget client");
         exit(1);
     }
+
     // Recuperation de l'identifiant de la mémoire partagée
     fprintf(stderr,"(CLIENT %d) Recuperation de l'id de la mémoire partagée\n",getpid());
 
+    idShm = shmget(CLE, 200, 0);
+    if(idShm == -1)
+    {
+        perror("shmget client");
+        exit(1);
+    }
+
     // Attachement à la mémoire partagée
+    shmPub = (char*) shmat(idShm, NULL, 0);
+    if(shmPub == (char*)-1)
+    {
+        perror("shmat client");
+        exit(1);
+    }
 
     // Armement des signaux
     signal(SIGUSR1, handlerSIGUSR1);
-   
+    signal(SIGUSR2, handlerSIGUSR2);
+
     // Envoi d'une requete de connexion au serveur
     MESSAGE m;
     m.type = 1;
@@ -64,9 +81,9 @@ WindowClient::WindowClient(QWidget *parent):QMainWindow(parent),ui(new Ui::Windo
 
     if(msgsnd(idQ,&m,sizeof(MESSAGE)-sizeof(long),0)==-1)
         perror("msgsnd CONNECT");
-    
-    dejaConnecteAuServeur = true; }
 
+    dejaConnecteAuServeur = true;
+  }
 WindowClient::~WindowClient()
 {
     delete ui;
@@ -436,20 +453,46 @@ void WindowClient::on_pushButtonEnvoyer_clicked()
 
 void WindowClient::on_pushButtonConsulter_clicked()
 {
-    // TO DO
+    resetTimeOut();
 
+    MESSAGE m;
+    m.type = 1;
+    m.expediteur = getpid();
+    m.requete = CONSULT;
+    strcpy(m.data1, getNomRenseignements());
+    m.data2[0] = 0;
+    m.texte[0] = 0;
+
+    if(msgsnd(idQ, &m, sizeof(MESSAGE)-sizeof(long), 0) == -1)
+        perror("msgsnd CONSULT");
+
+    // Affichage en attente
+    w->setGsm("...en attente...");
+    w->setEmail("...en attente...");
 }
 
 void WindowClient::on_pushButtonModifier_clicked()
 {
   // TO DO
   // Envoi d'une requete MODIF1 au serveur
-  MESSAGE m;
-  // ...
+  resetTimeOut();
 
-  // Attente d'une reponse en provenance de Modification
-  fprintf(stderr,"(CLIENT %d) Attente reponse MODIF1\n",getpid());
+  MESSAGE m;
+  m.type = 1;
+  m.expediteur = getpid();
+  m.requete = MODIF1;
+  m.data1[0] = 0;
+  m.data2[0] = 0;
+  m.texte[0] = 0;
+
+  msgsnd(idQ, &m, sizeof(MESSAGE)-sizeof(long), 0);
   // ...
+  // Attente d'une reponse en provenance de Modification
+  if(msgrcv(idQ, &m, sizeof(MESSAGE)-sizeof(long), getpid(), 0) == -1)
+  {
+      perror("msgrcv MODIF1");
+      return;
+  }
 
   // Verification si la modification est possible
   if (strcmp(m.data1,"KO") == 0 && strcmp(m.data2,"KO") == 0 && strcmp(m.texte,"KO") == 0)
@@ -468,8 +511,16 @@ void WindowClient::on_pushButtonModifier_clicked()
   strcpy(gsm,dialogue.getGsm());
   strcpy(email,dialogue.getEmail());
 
-  // Envoi des données modifiées au serveur
-  // ...
+  MESSAGE m2;
+  m2.type = 1;
+  m2.expediteur = getpid();
+  m2.requete = MODIF2;
+  strcpy(m2.data1, motDePasse);
+  strcpy(m2.data2, gsm);
+  strcpy(m2.texte, email);
+
+  if(msgsnd(idQ, &m2, sizeof(MESSAGE)-sizeof(long), 0) == -1)
+      perror("msgsnd MODIF2");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -618,20 +669,20 @@ void handlerSIGUSR1(int sig)
 
             case ADD_USER :
             {
-                bool deja = false;
+                bool dejadanslaliste = false;
 
-                // vérifier si déjà présent
+                
                 for(int i=1;i<=5;i++)
                 {
                     if(strcmp(w->getPersonneConnectee(i), m.data1) == 0)
                     {
-                        deja = true;
+                        dejadanslaliste = true;
                         break;
                     }
                 }
 
-                // ajouter dans première case vide
-                if(!deja)
+                
+                if(!dejadanslaliste)
                 {
                     for(int i=1;i<=5;i++)
                     {
@@ -660,7 +711,27 @@ void handlerSIGUSR1(int sig)
             }
 
             case CONSULT :
-                break;
+            {
+              resetTimeOut();
+
+              // Ici m contient LA RÉPONSE du processus Consultation
+              if(strcmp(m.data1, "OK") == 0)
+              {
+                  w->setGsm(m.data2);
+                  w->setEmail(m.texte);
+              }
+              else
+              {
+                  w->setGsm("NON TROUVE");
+                  w->setEmail("NON TROUVE");
+              }
+              break;
+                }
+            case MODIF1 :
+              {
+                  
+                  break;
+              }
         }
     }
 }
@@ -669,10 +740,10 @@ void handlerSIGALRM(int sig)
 {
     timeOut--;
 
-    // Mise à jour affichage
+    
     w->setTimeOut(timeOut);
 
-    // Si timeout atteint
+    
     if (timeOut <= 0)
     {
         fprintf(stderr,"(CLIENT %d) Time out atteint -> LOGOUT automatique\n", getpid());
@@ -684,7 +755,6 @@ void handlerSIGALRM(int sig)
         msgsnd(idQ,&m,sizeof(MESSAGE)-sizeof(long),0);
         m.requete = DECONNECT;
         msgsnd(idQ,&m,sizeof(MESSAGE)-sizeof(long),0);
-        // Reset fenêtre
         w->logoutOK();
         dejaConnecteAuServeur = false;
         estConnecte = false;
@@ -692,6 +762,11 @@ void handlerSIGALRM(int sig)
         return;
     }
 
-    // Relance une alarme dans 1 seconde
+    
     alarm(1);
+}
+void handlerSIGUSR2(int sig)
+{
+    
+    w->setPublicite(shmPub);
 }
