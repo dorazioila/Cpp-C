@@ -18,9 +18,17 @@ extern WindowClient *w;
 int idQ, idShm;
 #define TIME_OUT 120
 int timeOut = TIME_OUT;
-
+bool estConnecte = false;
+bool dejaConnecteAuServeur = false;
 void handlerSIGUSR1(int sig);
-
+void handlerSIGALRM(int sig);
+void resetTimeOut()
+{
+    alarm(0);                 // annule alarme en cours
+    timeOut = TIME_OUT;       // remet à 120
+    w->setTimeOut(timeOut);   // affiche
+    alarm(1);                 // relance
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -28,7 +36,7 @@ WindowClient::WindowClient(QWidget *parent):QMainWindow(parent),ui(new Ui::Windo
 {
     ui->setupUi(this);
     ::close(2);
-    logoutOK();
+  
 
     // Recuperation de l'identifiant de la file de messages
     fprintf(stderr,"(CLIENT %d) Recuperation de l'id de la file de messages\n",getpid());
@@ -44,6 +52,7 @@ WindowClient::WindowClient(QWidget *parent):QMainWindow(parent),ui(new Ui::Windo
 
     // Armement des signaux
     signal(SIGUSR1, handlerSIGUSR1);
+   
     // Envoi d'une requete de connexion au serveur
     MESSAGE m;
     m.type = 1;
@@ -55,7 +64,8 @@ WindowClient::WindowClient(QWidget *parent):QMainWindow(parent),ui(new Ui::Windo
 
     if(msgsnd(idQ,&m,sizeof(MESSAGE)-sizeof(long),0)==-1)
         perror("msgsnd CONNECT");
-    }
+    
+    dejaConnecteAuServeur = true; }
 
 WindowClient::~WindowClient()
 {
@@ -299,7 +309,12 @@ void WindowClient::loginOK()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::logoutOK()
-{
+{ 
+  dejaConnecteAuServeur = false;
+  estConnecte = false;
+  alarm(0);
+  timeOut = TIME_OUT;
+  w->setTimeOut(timeOut);
   ui->pushButtonLogin->setEnabled(true);
   ui->pushButtonLogout->setEnabled(false);
   ui->lineEditNom->setReadOnly(false);
@@ -365,7 +380,22 @@ void WindowClient::closeEvent(QCloseEvent *event)
 ///// Fonctions clics sur les boutons ////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::on_pushButtonLogin_clicked()
-{
+{ 
+    if (!dejaConnecteAuServeur)
+    {
+        MESSAGE m2;
+        m2.type = 1;
+        m2.expediteur = getpid();
+        m2.requete = CONNECT;
+        m2.data1[0] = 0;
+        m2.data2[0] = 0;
+        m2.texte[0] = 0;
+
+        if(msgsnd(idQ,&m2,sizeof(MESSAGE)-sizeof(long),0)==-1)
+            perror("msgsnd CONNECT");
+        dejaConnecteAuServeur = true;
+    }
+    
     MESSAGE m;
     m.type = 1;
     m.expediteur = getpid();
@@ -383,6 +413,7 @@ void WindowClient::on_pushButtonLogin_clicked()
 
 void WindowClient::on_pushButtonLogout_clicked()
 {
+    resetTimeOut();
     MESSAGE m;
     m.type = 1;
     m.expediteur = getpid();
@@ -392,7 +423,8 @@ void WindowClient::on_pushButtonLogout_clicked()
 }
 
 void WindowClient::on_pushButtonEnvoyer_clicked()
-{
+{ 
+    resetTimeOut();
     MESSAGE m;
     m.type = 1;
     m.expediteur = getpid();
@@ -445,6 +477,7 @@ void WindowClient::on_pushButtonModifier_clicked()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::on_checkBox1_clicked(bool checked)
 {
+        resetTimeOut();
         MESSAGE m;
         m.type = 1;
         m.expediteur = getpid();
@@ -466,7 +499,8 @@ void WindowClient::on_checkBox1_clicked(bool checked)
 
 void WindowClient::on_checkBox2_clicked(bool checked)
 {
-   MESSAGE m;
+        resetTimeOut();
+        MESSAGE m;
         m.type = 1;
         m.expediteur = getpid();
 
@@ -486,8 +520,9 @@ void WindowClient::on_checkBox2_clicked(bool checked)
 }
 
 void WindowClient::on_checkBox3_clicked(bool checked)
-{
-    MESSAGE m;
+{ 
+        resetTimeOut();
+        MESSAGE m;
         m.type = 1;
         m.expediteur = getpid();
 
@@ -508,7 +543,8 @@ void WindowClient::on_checkBox3_clicked(bool checked)
 
 void WindowClient::on_checkBox4_clicked(bool checked)
 {
-    MESSAGE m;
+        resetTimeOut();
+        MESSAGE m;
         m.type = 1;
         m.expediteur = getpid();
 
@@ -529,7 +565,8 @@ void WindowClient::on_checkBox4_clicked(bool checked)
 
 void WindowClient::on_checkBox5_clicked(bool checked)
 {
-    MESSAGE m;
+        resetTimeOut();
+        MESSAGE m;
         m.type = 1;
         m.expediteur = getpid();
 
@@ -547,6 +584,8 @@ void WindowClient::on_checkBox5_clicked(bool checked)
         strcpy(m.data1,getPersonneConnectee(5));
         msgsnd(idQ,&m,sizeof(MESSAGE)-sizeof(long),0);
 }
+
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// Handlers de signaux ////////////////////////////////////////////////////////////////////////////////////
@@ -567,8 +606,13 @@ void handlerSIGUSR1(int sig)
                     fprintf(stderr,"(CLIENT %d) Login OK\n",getpid());
                     w->loginOK();
                     w->dialogueMessage("Login...",m.texte);
+                    estConnecte = true;
                 }
                 else w->dialogueErreur("Login...",m.texte);
+                timeOut = TIME_OUT;
+                w->setTimeOut(timeOut);
+                signal(SIGALRM, handlerSIGALRM);
+                alarm(1);
                 break;
             }
 
@@ -621,3 +665,33 @@ void handlerSIGUSR1(int sig)
     }
 }
 
+void handlerSIGALRM(int sig)
+{
+    timeOut--;
+
+    // Mise à jour affichage
+    w->setTimeOut(timeOut);
+
+    // Si timeout atteint
+    if (timeOut <= 0)
+    {
+        fprintf(stderr,"(CLIENT %d) Time out atteint -> LOGOUT automatique\n", getpid());
+
+        MESSAGE m;
+        m.type = 1;
+        m.expediteur = getpid();
+        m.requete = LOGOUT;
+        msgsnd(idQ,&m,sizeof(MESSAGE)-sizeof(long),0);
+        m.requete = DECONNECT;
+        msgsnd(idQ,&m,sizeof(MESSAGE)-sizeof(long),0);
+        // Reset fenêtre
+        w->logoutOK();
+        dejaConnecteAuServeur = false;
+        estConnecte = false;
+
+        return;
+    }
+
+    // Relance une alarme dans 1 seconde
+    alarm(1);
+}
