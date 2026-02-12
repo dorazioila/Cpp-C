@@ -25,6 +25,7 @@ char *shmPub;
 void handlerSIGUSR1(int sig);
 void handlerSIGALRM(int sig);
 void handlerSIGUSR2(int sig);
+
 void resetTimeOut()
 {
     alarm(0);                
@@ -32,24 +33,19 @@ void resetTimeOut()
     w->setTimeOut(timeOut);   
     alarm(1);                 
 }
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 WindowClient::WindowClient(QWidget *parent):QMainWindow(parent),ui(new Ui::WindowClient)
 {
      ui->setupUi(this);
     ::close(2);
 
-    // Recuperation de l'identifiant de la file de messages
-    fprintf(stderr,"(CLIENT %d) Recuperation de l'id de la file de messages\n",getpid());
+        fprintf(stderr,"(CLIENT %d) Recuperation de l'id de la file de messages\n",getpid());
     idQ = msgget(CLE,0);
     if(idQ == -1) {
         perror("msgget client");
         exit(1);
     }
 
-    // Recuperation de l'identifiant de la mémoire partagée
-    fprintf(stderr,"(CLIENT %d) Recuperation de l'id de la mémoire partagée\n",getpid());
+        fprintf(stderr,"(CLIENT %d) Recuperation de l'id de la mémoire partagée\n",getpid());
 
     idShm = shmget(CLE, 200, 0);
     if(idShm == -1)
@@ -58,19 +54,16 @@ WindowClient::WindowClient(QWidget *parent):QMainWindow(parent),ui(new Ui::Windo
         exit(1);
     }
 
-    // Attachement à la mémoire partagée
-    shmPub = (char*) shmat(idShm, NULL, 0);
+        shmPub = (char*) shmat(idShm, NULL, 0);
     if(shmPub == (char*)-1)
     {
         perror("shmat client");
         exit(1);
     }
 
-    // Armement des signaux
-    signal(SIGUSR1, handlerSIGUSR1);
+        signal(SIGUSR1, handlerSIGUSR1);
     signal(SIGUSR2, handlerSIGUSR2);
 
-    // Envoi d'une requete de connexion au serveur
     MESSAGE m;
     m.type = 1;
     m.expediteur = getpid();
@@ -89,9 +82,6 @@ WindowClient::~WindowClient()
     delete ui;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///// Fonctions utiles : ne pas modifier /////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::setNom(const char* Text)
 {
   if (strlen(Text) == 0 )
@@ -102,14 +92,12 @@ void WindowClient::setNom(const char* Text)
   ui->lineEditNom->setText(Text);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 const char* WindowClient::getNom()
 {
   strcpy(connectes[0],ui->lineEditNom->text().toStdString().c_str());
   return connectes[0];
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::setMotDePasse(const char* Text)
 {
   if (strlen(Text) == 0 )
@@ -120,21 +108,18 @@ void WindowClient::setMotDePasse(const char* Text)
   ui->lineEditMotDePasse->setText(Text);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 const char* WindowClient::getMotDePasse()
 {
   strcpy(motDePasse,ui->lineEditMotDePasse->text().toStdString().c_str());
   return motDePasse;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int WindowClient::isNouveauChecked()
 {
   if (ui->checkBoxNouveau->isChecked()) return 1;
   return 0;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::setPublicite(const char* Text)
 {
   if (strlen(Text) == 0 )
@@ -145,17 +130,14 @@ void WindowClient::setPublicite(const char* Text)
   ui->lineEditPublicite->setText(Text);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::setTimeOut(int nb)
 {
   ui->lcdNumberTimeOut->display(nb);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::setAEnvoyer(const char* Text)
 {
-  //fprintf(stderr,"---%s---\n",Text);
-  if (strlen(Text) == 0 )
+    if (strlen(Text) == 0 )
   {
     ui->lineEditAEnvoyer->clear();
     return;
@@ -163,14 +145,12 @@ void WindowClient::setAEnvoyer(const char* Text)
   ui->lineEditAEnvoyer->setText(Text);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 const char* WindowClient::getAEnvoyer()
 {
   strcpy(aEnvoyer,ui->lineEditAEnvoyer->text().toStdString().c_str());
   return aEnvoyer;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::setPersonneConnectee(int i,const char* Text)
 {
   if (strlen(Text) == 0 )
@@ -195,7 +175,6 @@ void WindowClient::setPersonneConnectee(int i,const char* Text)
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 const char* WindowClient::getPersonneConnectee(int i)
 {
   QLineEdit *tmp;
@@ -213,11 +192,9 @@ const char* WindowClient::getPersonneConnectee(int i)
   return connectes[i];
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::ajouteMessage(const char* personne,const char* message)
 {
-  // Choix de la couleur en fonction de la position
-  int i=1;
+    int i=1;
   bool trouve=false;
   while (i<=5 && !trouve)
   {
@@ -239,13 +216,11 @@ void WindowClient::ajouteMessage(const char* personne,const char* message)
   else strcpy(couleur,"<font color=\"black\">");
   if (strcmp(getNom(),personne) == 0) strcpy(couleur,"<font color=\"purple\">");
 
-  // ajout du message dans la conversation
-  char buffer[300];
+    char buffer[300];
   sprintf(buffer,"%s(%s)</font> %s",couleur,personne,message);
   ui->textEditConversations->append(buffer);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::setNomRenseignements(const char* Text)
 {
   if (strlen(Text) == 0 )
@@ -256,14 +231,12 @@ void WindowClient::setNomRenseignements(const char* Text)
   ui->lineEditNomRenseignements->setText(Text);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 const char* WindowClient::getNomRenseignements()
 {
   strcpy(nomR,ui->lineEditNomRenseignements->text().toStdString().c_str());
   return nomR;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::setGsm(const char* Text)
 {
   if (strlen(Text) == 0 )
@@ -274,7 +247,6 @@ void WindowClient::setGsm(const char* Text)
   ui->lineEditGsm->setText(Text);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::setEmail(const char* Text)
 {
   if (strlen(Text) == 0 )
@@ -285,7 +257,6 @@ void WindowClient::setEmail(const char* Text)
   ui->lineEditEmail->setText(Text);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::setCheckbox(int i,bool b)
 {
   QCheckBox *tmp;
@@ -303,7 +274,6 @@ void WindowClient::setCheckbox(int i,bool b)
   else tmp->setText("Refusé");
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::loginOK()
 {
   ui->pushButtonLogin->setEnabled(false);
@@ -324,7 +294,6 @@ void WindowClient::loginOK()
   setTimeOut(TIME_OUT);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::logoutOK()
 { 
   dejaConnecteAuServeur = false;
@@ -362,23 +331,16 @@ void WindowClient::logoutOK()
   setTimeOut(TIME_OUT);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///// Fonctions permettant d'afficher des boites de dialogue /////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::dialogueMessage(const char* titre,const char* message)
 {
    QMessageBox::information(this,titre,message);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::dialogueErreur(const char* titre,const char* message)
 {
    QMessageBox::critical(this,titre,message);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///// Clic sur la croix de la fenêtre ////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::closeEvent(QCloseEvent *event)
 {
     MESSAGE m;
@@ -393,9 +355,6 @@ void WindowClient::closeEvent(QCloseEvent *event)
     QApplication::exit();
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///// Fonctions clics sur les boutons ////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::on_pushButtonLogin_clicked()
 { 
     if (!dejaConnecteAuServeur)
@@ -466,16 +425,13 @@ void WindowClient::on_pushButtonConsulter_clicked()
     if(msgsnd(idQ, &m, sizeof(MESSAGE)-sizeof(long), 0) == -1)
         perror("msgsnd CONSULT");
 
-    // Affichage en attente
-    w->setGsm("...en attente...");
+        w->setGsm("...en attente...");
     w->setEmail("...en attente...");
 }
 
 void WindowClient::on_pushButtonModifier_clicked()
 {
-  // TO DO
-  // Envoi d'une requete MODIF1 au serveur
-  resetTimeOut();
+      resetTimeOut();
 
   MESSAGE m;
   m.type = 1;
@@ -486,23 +442,19 @@ void WindowClient::on_pushButtonModifier_clicked()
   m.texte[0] = 0;
 
   msgsnd(idQ, &m, sizeof(MESSAGE)-sizeof(long), 0);
-  // ...
-  // Attente d'une reponse en provenance de Modification
-  if(msgrcv(idQ, &m, sizeof(MESSAGE)-sizeof(long), getpid(), 0) == -1)
+      if(msgrcv(idQ, &m, sizeof(MESSAGE)-sizeof(long), getpid(), 0) == -1)
   {
       perror("msgrcv MODIF1");
       return;
   }
 
-  // Verification si la modification est possible
-  if (strcmp(m.data1,"KO") == 0 && strcmp(m.data2,"KO") == 0 && strcmp(m.texte,"KO") == 0)
+    if (strcmp(m.data1,"KO") == 0 && strcmp(m.data2,"KO") == 0 && strcmp(m.texte,"KO") == 0)
   {
     QMessageBox::critical(w,"Problème...","Modification déjà en cours...");
     return;
   }
 
-  // Modification des données par utilisateur
-  DialogModification dialogue(this,getNom(),"",m.data2,m.texte);
+    DialogModification dialogue(this,getNom(),"",m.data2,m.texte);
   dialogue.exec();
   char motDePasse[40];
   char gsm[40];
@@ -523,9 +475,6 @@ void WindowClient::on_pushButtonModifier_clicked()
       perror("msgsnd MODIF2");
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///// Fonctions clics sur les checkbox ///////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::on_checkBox1_clicked(bool checked)
 {
         resetTimeOut();
@@ -638,15 +587,11 @@ void WindowClient::on_checkBox5_clicked(bool checked)
 
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///// Handlers de signaux ////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void handlerSIGUSR1(int sig)
 {
     MESSAGE m;
 
-    // Lire TOUS les messages destinés à ce client
-    while(msgrcv(idQ, &m, sizeof(MESSAGE)-sizeof(long), getpid(), IPC_NOWAIT) != -1)
+        while(msgrcv(idQ, &m, sizeof(MESSAGE)-sizeof(long), getpid(), IPC_NOWAIT) != -1)
     {
         switch(m.requete)
         {
@@ -714,8 +659,7 @@ void handlerSIGUSR1(int sig)
             {
               resetTimeOut();
 
-              // Ici m contient LA RÉPONSE du processus Consultation
-              if(strcmp(m.data1, "OK") == 0)
+                            if(strcmp(m.data1, "OK") == 0)
               {
                   w->setGsm(m.data2);
                   w->setEmail(m.texte);

@@ -13,22 +13,19 @@ int idQ, idShm;
 
 int main()
 {
-  // Masquage de SIGINT
-  sigset_t mask;
+    sigset_t mask;
   sigemptyset(&mask);
   sigaddset(&mask,SIGINT);
   sigprocmask(SIG_SETMASK,&mask,NULL);
 
-  // Recuperation file de messages
-  fprintf(stderr,"(PUBLICITE %d) Recuperation de l'id de la file de messages\n",getpid());
+    fprintf(stderr,"(PUBLICITE %d) Recuperation de l'id de la file de messages\n",getpid());
   idQ = msgget(CLE, 0);
   if(idQ == -1) { 
     perror("msgget pub"); 
     exit(1); 
   }
 
-  // Recuperation mémoire partagée
-  fprintf(stderr,"(PUBLICITE %d) Recuperation de l'id de la mémoire partagée\n",getpid());
+    fprintf(stderr,"(PUBLICITE %d) Recuperation de l'id de la mémoire partagée\n",getpid());
   idShm = shmget(CLE, 200, 0);
   if(idShm == -1) { 
     perror("shmget pub"); 
@@ -41,8 +38,7 @@ int main()
     exit(1); 
   }
 
-  // Ouverture fichier
-  FILE *f = fopen("publicites.dat", "rb");
+    FILE *f = fopen("publicites.dat", "rb");
   if(!f)
   {
       perror("fopen publicites.dat");
@@ -62,18 +58,15 @@ int main()
         continue;
     }
 
-    // Copie sécurisée dans mémoire partagée
-    strncpy(shmPub, pub.texte, 199);
+        strncpy(shmPub, pub.texte, 199);
     shmPub[199] = '\0';
 
-    // Prévenir le serveur
     MESSAGE m;
     m.type = 1;
     m.expediteur = getpid();
     m.requete = UPDATE_PUB;
     msgsnd(idQ, &m, sizeof(MESSAGE)-sizeof(long), 0);
 
-    // Attente
-    sleep(pub.nbSecondes);
+        sleep(pub.nbSecondes);
 }
 }

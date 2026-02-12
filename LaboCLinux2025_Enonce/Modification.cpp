@@ -17,8 +17,7 @@ int main()
   MESSAGE m, reponse;
   char nom[40];
 
-  // File de messages
-  fprintf(stderr,"(MODIFICATION %d) Recuperation de l'id de la file de messages\n",getpid());
+    fprintf(stderr,"(MODIFICATION %d) Recuperation de l'id de la file de messages\n",getpid());
   idQ = msgget(CLE,0);
   if(idQ == -1)
   {
@@ -26,26 +25,22 @@ int main()
     exit(1);
   }
 
-  // Sémaphore
-  idSem = semget(CLE,1,0);
+    idSem = semget(CLE,1,0);
   if(idSem == -1)
   {
     perror("semget modification");
     exit(1);
   }
 
-  // Lecture requête MODIF1
-  fprintf(stderr,"(MODIFICATION %d) Lecture requete MODIF1\n",getpid());
+    fprintf(stderr,"(MODIFICATION %d) Lecture requete MODIF1\n",getpid());
   if(msgrcv(idQ,&m,sizeof(MESSAGE)-sizeof(long),getpid(),0) == -1)
   {
     perror("msgrcv MODIF1");
     exit(1);
   }
 
-  strcpy(nom, m.data1);   // nom de l'utilisateur
-
-  // Tentative de prise NON BLOQUANTE du sémaphore
-  fprintf(stderr,"(MODIFICATION %d) Prise non bloquante du sémaphore 0\n",getpid());
+  strcpy(nom, m.data1);   
+    fprintf(stderr,"(MODIFICATION %d) Prise non bloquante du sémaphore 0\n",getpid());
   struct sembuf op;
   op.sem_num = 0;
   op.sem_op  = -1;
@@ -53,8 +48,7 @@ int main()
 
   if(semop(idSem,&op,1) == -1)
   {
-    // Sémaphore déjà pris → modification refusée
-    reponse.type = m.expediteur;
+        reponse.type = m.expediteur;
     reponse.requete = MODIF1;
     strcpy(reponse.data1,"KO");
     strcpy(reponse.data2,"KO");
@@ -64,8 +58,7 @@ int main()
     exit(0);
   }
 
-  // Connexion BD
-  MYSQL *connexion = mysql_init(NULL);
+    MYSQL *connexion = mysql_init(NULL);
   fprintf(stderr,"(MODIFICATION %d) Connexion à la BD\n",getpid());
   if (mysql_real_connect(connexion,"localhost","Student","PassStudent1_","PourStudent",0,0,0) == NULL)
   {
@@ -73,8 +66,7 @@ int main()
     exit(1);  
   }
 
-  // Consultation infos actuelles
-  fprintf(stderr,"(MODIFICATION %d) Consultation en BD pour --%s--\n",getpid(),nom);
+    fprintf(stderr,"(MODIFICATION %d) Consultation en BD pour --%s--\n",getpid(),nom);
 
   char requete[200];
   MYSQL_RES *resultat;
@@ -85,40 +77,38 @@ int main()
   resultat = mysql_store_result(connexion);
   tuple = mysql_fetch_row(resultat);
 
-  // Envoi réponse MODIF1 au client
-  fprintf(stderr,"(MODIFICATION %d) Envoi de la reponse\n",getpid());
+    fprintf(stderr,"(MODIFICATION %d) Envoi de la reponse\n",getpid());
 
   reponse.type = m.expediteur;
   reponse.requete = MODIF1;
-  strcpy(reponse.data1,"OK");
-  strcpy(reponse.data2, tuple[0]);   // gsm
-  strcpy(reponse.texte, tuple[1]);   // email
+  strcpy(reponse.data1,"
+    66459669+
 
+
+
+    OK");
+  strcpy(reponse.data2, tuple[0]);     strcpy(reponse.texte, tuple[1]);   
   msgsnd(idQ,&reponse,sizeof(MESSAGE)-sizeof(long),0);
   kill(m.expediteur,SIGUSR1);
 
-  // Attente requête MODIF2
-  fprintf(stderr,"(MODIFICATION %d) Attente requete MODIF2...\n",getpid());
+    fprintf(stderr,"(MODIFICATION %d) Attente requete MODIF2...\n",getpid());
   if(msgrcv(idQ,&m,sizeof(MESSAGE)-sizeof(long),getpid(),0) == -1)
   {
     perror("msgrcv MODIF2");
     exit(1);
   }
 
-  // Mise à jour BD
-  fprintf(stderr,"(MODIFICATION %d) Modification en base de données pour --%s--\n",getpid(),nom);
+    fprintf(stderr,"(MODIFICATION %d) Modification en base de données pour --%s--\n",getpid(),nom);
 
   sprintf(requete,
           "UPDATE UNIX_FINAL SET gsm='%s', email='%s' WHERE nom='%s'",
           m.data2, m.texte, nom);
   mysql_query(connexion, requete);
 
-  // Ici tu peux ajouter la modif du mot de passe dans utilisateurs.dat si m.data1 non vide
-
+  
   mysql_close(connexion);
 
-  // Libération sémaphore
-  fprintf(stderr,"(MODIFICATION %d) Liberation du semaphore 0\n",getpid());
+    fprintf(stderr,"(MODIFICATION %d) Liberation du semaphore 0\n",getpid());
   op.sem_op = 1;
   semop(idSem,&op,1);
 

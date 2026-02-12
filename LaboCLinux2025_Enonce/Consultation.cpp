@@ -16,8 +16,7 @@ int main()
   MESSAGE m, reponse;
   char nom[40];
 
-  // Récupération file de messages
-  fprintf(stderr,"(CONSULTATION %d) Recuperation de l'id de la file de messages\n",getpid());
+    fprintf(stderr,"(CONSULTATION %d) Recuperation de l'id de la file de messages\n",getpid());
   idQ = msgget(CLE,0);
   if(idQ == -1)
   {
@@ -25,8 +24,7 @@ int main()
     exit(1);
   }
 
-  // Lecture requête CONSULT
-  fprintf(stderr,"(CONSULTATION %d) Lecture requete CONSULT\n",getpid());
+    fprintf(stderr,"(CONSULTATION %d) Lecture requete CONSULT\n",getpid());
   if(msgrcv(idQ,&m,sizeof(MESSAGE)-sizeof(long),getpid(),0) == -1)
   {
     perror("msgrcv CONSULT");
@@ -35,8 +33,7 @@ int main()
 
   strcpy(nom, m.data1);
 
-  // Connexion BD
-  MYSQL *connexion = mysql_init(NULL);
+    MYSQL *connexion = mysql_init(NULL);
   fprintf(stderr,"(CONSULTATION %d) Connexion à la BD\n",getpid());
   if (mysql_real_connect(connexion,"localhost","Student","PassStudent1_","PourStudent",0,0,0) == NULL)
   {
@@ -44,8 +41,7 @@ int main()
     exit(1);  
   }
 
-  // Recherche infos
-  fprintf(stderr,"(CONSULTATION %d) Consultation en BD pour --%s--\n",getpid(),nom);
+    fprintf(stderr,"(CONSULTATION %d) Consultation en BD pour --%s--\n",getpid(),nom);
 
   char requete[200];
   MYSQL_RES *resultat;
@@ -61,9 +57,7 @@ int main()
   if(resultat && (tuple = mysql_fetch_row(resultat)) != NULL)
   {
     strcpy(reponse.data1,"OK");
-    strcpy(reponse.data2, tuple[0]);   // gsm
-    strcpy(reponse.texte, tuple[1]);   // email
-  }
+    strcpy(reponse.data2, tuple[0]);       strcpy(reponse.texte, tuple[1]);     }
   else
   {
     strcpy(reponse.data1,"KO");
@@ -74,8 +68,7 @@ int main()
   mysql_free_result(resultat);
   mysql_close(connexion);
 
-  // Envoi réponse au client
-  fprintf(stderr,"(CONSULTATION %d) Envoi de la reponse\n",getpid());
+    fprintf(stderr,"(CONSULTATION %d) Envoi de la reponse\n",getpid());
   msgsnd(idQ,&reponse,sizeof(MESSAGE)-sizeof(long),0);
   kill(m.expediteur,SIGUSR1);
 
