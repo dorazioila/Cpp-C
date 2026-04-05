@@ -8,25 +8,26 @@
 #include "Ressources.h"
 #include <string.h>
 #include <stdbool.h>
-// Dimensions de la grille de jeu
+
 #define NB_LIGNES   9
 #define NB_COLONNES 9
 
-// Nombre de cases maximum par piece
 #define NB_CASES    4
 
-// Macros utilisees dans le tableau tab
 #define VIDE        0
 #define BRIQUE      1
 #define DIAMANT     2
 
-char* message = NULL; // pointeur vers le message à faire défiler
-int tailleMessage; // longueur du message
-int indiceCourant; // indice du premier caractère à afficher dans la zone graphique
+char* message = NULL; 
+int tailleMessage; 
+int indiceCourant; 
 int score = 0;              
 bool MAJScore = false;  
 int combos = 0;
-bool MAJCombos = false;    
+bool MAJCombos = false;
+bool traitementEnCours = false;            
+pthread_mutex_t mutexTraitement;          
+pthread_cond_t condTraitement;            
 pthread_mutex_t mutexScore; 
 pthread_cond_t condScore; 
 pthread_mutex_t mutexMessage;
@@ -47,6 +48,7 @@ int nbAnalyses = 0;
 pthread_mutex_t mutexAnalyse;
 pthread_cond_t condAnalyse;
 int tab[NB_LIGNES][NB_COLONNES] = {0};
+
 typedef struct
 {
   int ligne;
@@ -59,21 +61,42 @@ typedef struct
   int  nbCases;
   int  couleur;
 } PIECE;
+
 PIECE pieceEnCours;
 CASE casesInserees[NB_CASES];
 int nbCasesInserees = 0;
-PIECE pieces[12] = { 0,0,0,1,1,0,1,1,4,0,       // carre 4
-                     0,0,1,0,2,0,2,1,4,0,       // L 4
-                     0,1,1,1,2,0,2,1,4,0,       // J 4
-                     0,0,0,1,1,1,1,2,4,0,       // Z 4
-                     0,1,0,2,1,0,1,1,4,0,       // S 4
-                     0,0,0,1,0,2,1,1,4,0,       // T 4
-                     0,0,0,1,0,2,0,3,4,0,       // I 4
-                     0,0,0,1,0,2,0,0,3,0,       // I 3
-                     0,1,1,0,1,1,0,0,3,0,       // J 3
-                     0,0,1,0,1,1,0,0,3,0,       // L 3
-                     0,0,0,1,0,0,0,0,2,0,       // I 2
-                     0,0,0,0,0,0,0,0,1,0 };     // carre 1
+
+PIECE pieces[12] = { 0,0,0,1,1,0,1,1,4,0,       
+                     0,0,1,0,2,0,2,1,4,0,       
+                     0,1,1,1,2,0,2,1,4,0,       
+                     0,0,0,1,1,1,1,2,4,0,       
+                     0,1,0,2,1,0,1,1,4,0,       
+                     0,0,0,1,0,2,1,1,4,0,       
+                     0,0,0,1,0,2,0,3,4,0,       
+                     0,0,0,1,0,2,0,0,3,0,       
+                     0,1,1,0,1,1,0,0,3,0,       
+                     0,0,1,0,1,1,0,0,3,0,       
+                     0,0,0,1,0,0,0,0,2,0,       
+                     0,0,0,0,0,0,0,0,1,0 };     
+
+
+
+pthread_key_t clefCase;
+
+void destructeurCase(void *ptr) {
+    if (ptr != NULL) {
+        free(ptr);
+    }
+}
+
+void nettoyageMessage(void* arg) {
+    pthread_mutex_lock(&mutexMessage);
+    if (message != NULL) {
+        free(message);
+        message = NULL;
+    }
+    pthread_mutex_unlock(&mutexMessage);
+}
 
 
 void handlerSIGALRM(int sig);
@@ -91,13 +114,15 @@ void* threadEvent(void* arg);
 void* threadScore(void* arg);
 void* threadCase(void* arg);
 void* threadNettoyeur(void* arg);
-///////////////////////////////////////////////////////////////////////////////////////////////////
+
 int main(int argc,char* argv[])
 {
-  EVENT_GRILLE_SDL event;
- 
   srand((unsigned)time(NULL));
   
+  
+  pthread_key_create(&clefCase, destructeurCase);
+  
+
   struct sigaction action;
   action.sa_handler = handlerSIGALRM;
   sigemptyset(&action.sa_mask);
@@ -110,13 +135,20 @@ int main(int argc,char* argv[])
   actionUSR1.sa_flags = 0;
   sigaction(SIGUSR1, &actionUSR1, NULL);
   
+  sigset_t mask;
+  sigemptyset(&mask);
+  sigaddset(&mask, SIGUSR1);
+  pthread_sigmask(SIG_SETMASK, &mask, NULL);
+  
   pthread_mutex_init(&mutexCasesInserees, NULL);
   pthread_cond_init(&condCasesInserees, NULL);
   pthread_t thPiece;
   pthread_t thEvent;
   pthread_mutex_init(&mutexScore, NULL);
   pthread_cond_init(&condScore, NULL);
-  // Ouverture de la fenetre graphique
+  pthread_mutex_init(&mutexTraitement, NULL);
+  pthread_cond_init(&condTraitement, NULL);
+  
   printf("(MAIN %p) Ouverture de la fenetre graphique\n",pthread_self()); fflush(stdout);
   if (OuvertureFenetreGraphique() < 0)
   {
@@ -124,22 +156,28 @@ int main(int argc,char* argv[])
     fflush(stdout);
     exit(1);
   }
+  
+  DessineVoyant(8,10,VERT);
   pthread_create(&thEvent, NULL, threadEvent, NULL);
   pthread_create(&thPiece, NULL, threadPiece, NULL);
-  sigset_t mask;
+  
   sigemptyset(&mask);
   sigaddset(&mask, SIGALRM);
   pthread_sigmask(SIG_SETMASK, &mask, NULL);
+  
   pthread_t thScore;
   pthread_create(&thScore, NULL, threadScore, NULL);
   pthread_t thDefile;
   pthread_mutex_init(&mutexMessage, NULL);
+  pthread_mutex_lock(&mutexTraitement);
+  traitementEnCours = false;
+  pthread_mutex_unlock(&mutexTraitement);
   pthread_create(&thDefile, NULL, threadDefileMessage, NULL);
   setMessage("Bienvenue dans Blockudoku ",true);
+  
   pthread_t thNettoyeur;
   pthread_create(&thNettoyeur, NULL, threadNettoyeur, NULL);
 
-  printf("(MAIN %p) Attente du clic sur la croix\n",pthread_self()); 
   pthread_mutex_init(&mutexAnalyse, NULL);
   pthread_cond_init(&condAnalyse, NULL);
 
@@ -154,31 +192,47 @@ int main(int argc,char* argv[])
           pthread_create(&tabThreadCase[L][C], NULL, threadCase, param);
       }
   }
-  bool ok = false;
-  while(!ok)
-  {
-    event = ReadEvent();
-    if (event.type == CROIX) ok = true;
-    if (event.type == CLIC_GAUCHE)
-    if(event.type == CLIC_GAUCHE)
-    {
-        int L = event.ligne;
-        int C = event.colonne;
-        if(L >= 0 && L < NB_LIGNES && C >= 0 && C < NB_COLONNES &&
-           tab[L][C] == VIDE && nbCasesInserees < pieceEnCours.nbCases)
-        {
-            pthread_mutex_lock(&mutexCasesInserees);
-            tab[L][C] = DIAMANT;
-            casesInserees[nbCasesInserees].ligne = L;
-            casesInserees[nbCasesInserees].colonne = C;
-            nbCasesInserees++;
-            DessineDiamant(L,C,pieceEnCours.couleur);
-            pthread_cond_signal(&condCasesInserees);
-            pthread_mutex_unlock(&mutexCasesInserees);
-        }
-    }
+
+  
+  
+
+  
+  pthread_join(thPiece, NULL);
+  printf("(MAIN) Partie terminee : Fin du threadPiece detectee.\n");
+
+  
+  pthread_cancel(thEvent);
+  pthread_join(thEvent, NULL); 
+  
+  
+  
+  pthread_cancel(thEvent);
+  
+  
+  for(int L = 0; L < 9; L++) {
+      for(int C = 0; C < 9; C++) {
+          pthread_cancel(tabThreadCase[L][C]);
+      }
   }
-  // Fermeture de la fenetre
+  for(int L = 0; L < 9; L++) {
+      for(int C = 0; C < 9; C++) {
+          pthread_join(tabThreadCase[L][C], NULL);
+      }
+  }
+
+  
+  printf("(MAIN %p) Attente du clic sur la croix...\n", pthread_self());
+  while(1) {
+      EVENT_GRILLE_SDL eventFin = ReadEvent();
+      if(eventFin.type == CROIX) break;
+  }
+
+  
+  pthread_cancel(thDefile);
+  pthread_join(thDefile, NULL);
+
+  
+  
   printf("(MAIN %p) Fermeture de la fenetre graphique...",pthread_self()); fflush(stdout);
   FermetureFenetreGraphique();
   printf("OK\n");
@@ -186,9 +240,6 @@ int main(int argc,char* argv[])
   exit(0);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/////// Fonctions fournies ////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
 void DessinePiece(PIECE piece)
 {
   int Lmin,Lmax,Cmin,Cmax;
@@ -230,7 +281,7 @@ void DessinePiece(PIECE piece)
   for (int i=0 ; i<piece.nbCases ; i++) DessineDiamant(Lref + piece.cases[i].ligne,Cref + piece.cases[i].colonne,piece.couleur);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+
 int CompareCases(CASE case1,CASE case2)
 {
   if (case1.ligne < case2.ligne) return -1;
@@ -241,35 +292,37 @@ int CompareCases(CASE case1,CASE case2)
 }
 
 void TriCases(CASE *vecteur,int indiceDebut,int indiceFin)
-{ // trie les cases de vecteur entre les indices indiceDebut et indiceFin compris
-  // selon le critere impose par la fonction CompareCases()
-  // Exemple : pour trier un vecteur v de 4 cases, il faut appeler TriCases(v,0,3); 
+{ 
   int  i,iMin;
   CASE tmp;
 
   if (indiceDebut >= indiceFin) return;
-
-  // Recherche du minimum
+  
   iMin = indiceDebut;
   for (i=indiceDebut ; i<=indiceFin ; i++)
     if (CompareCases(vecteur[i],vecteur[iMin]) < 0) iMin = i;
-
-  // On place le minimum a l'indiceDebut par permutation
+  
   tmp = vecteur[indiceDebut];
   vecteur[indiceDebut] = vecteur[iMin];
   vecteur[iMin] = tmp;
-
-  // Tri du reste du vecteur par recursivite
+  
   TriCases(vecteur,indiceDebut+1,indiceFin); 
 }
 
 void* threadDefileMessage(void* arg){
   sigset_t mask;
   sigemptyset(&mask);
-  pthread_sigmask(SIG_SETMASK, &mask, NULL);
+  sigaddset(&mask, SIGALRM);
+  pthread_sigmask(SIG_UNBLOCK, &mask, NULL); 
+
+  
+  pthread_cleanup_push(nettoyageMessage, NULL);
+  
+
   struct timespec temps,reste;
   temps.tv_sec = 0;
   temps.tv_nsec = 400000000;
+  
   while(1){
      pthread_mutex_lock(&mutexMessage);
      for(int i = 0; i < 17; i++){
@@ -286,13 +339,15 @@ void* threadDefileMessage(void* arg){
       indiceCourant = 0;
      }
      pthread_mutex_unlock(&mutexMessage);
-     nanosleep(&temps,&reste);
+     
+     nanosleep(&temps,&reste); 
   }
+  
+  pthread_cleanup_pop(0);
   return NULL;
 }
 
 void setMessage(const char *texte,bool signalOn){
-
   alarm(0);
   pthread_mutex_lock(&mutexMessage);
   free(message);
@@ -305,15 +360,17 @@ void setMessage(const char *texte,bool signalOn){
   }
   pthread_mutex_unlock(&mutexMessage);
 }
+
 void handlerSIGALRM(int sig){
   setMessage("jeux en cours", false);
 }
+
 void handlerSIGUSR1(int sig){
 
 }
+
 void RotationPiece(PIECE *pPiece)
 {
-   
     for(int i = 0 ; i < pPiece->nbCases ; i++)
     {
         int L = pPiece->cases[i].ligne;
@@ -322,7 +379,6 @@ void RotationPiece(PIECE *pPiece)
         pPiece->cases[i].ligne = -C;
         pPiece->cases[i].colonne = L;
     }
-
     
     int Lmin = pPiece->cases[0].ligne;
     int Cmin = pPiece->cases[0].colonne;
@@ -332,8 +388,7 @@ void RotationPiece(PIECE *pPiece)
         if(pPiece->cases[i].ligne < Lmin) Lmin = pPiece->cases[i].ligne;
         if(pPiece->cases[i].colonne < Cmin) Cmin = pPiece->cases[i].colonne;
     }
-
-  
+    
     for(int i = 0 ; i < pPiece->nbCases ; i++)
     {
         pPiece->cases[i].ligne -= Lmin;
@@ -341,92 +396,276 @@ void RotationPiece(PIECE *pPiece)
     }
     TriCases(pPiece->cases,0,pPiece->nbCases-1);
 }
+
 void* threadPiece(void* arg)
 {
     while(1)
     {
+        pthread_mutex_lock(&mutexTraitement);
+        while(traitementEnCours)
+        {
+            pthread_cond_wait(&condTraitement, &mutexTraitement);
+        }
+        pthread_mutex_unlock(&mutexTraitement);
+        
         int couleurs[] = {ROUGE, VIOLET, VERT, ORANGE, BLEU, JAUNE};
         int indice = rand() % 12;
+
         pieceEnCours = pieces[indice];
         pieceEnCours.couleur = couleurs[rand() % 6];
-        int nbRot = rand() % 4;
-        DessinePiece(pieceEnCours);
-        pthread_mutex_lock(&mutexCasesInserees);
-        nbCasesInserees = 0;
-        pthread_mutex_unlock(&mutexCasesInserees);
+
         
-        pthread_mutex_lock(&mutexCasesInserees);
-        while(nbCasesInserees < pieceEnCours.nbCases)
+        int nbRot = rand() % 4;
+        for(int i = 0; i < nbRot; i++)
         {
-            pthread_cond_wait(&condCasesInserees, &mutexCasesInserees);
+            RotationPiece(&pieceEnCours);
         }
-        pthread_mutex_unlock(&mutexCasesInserees);
-        for(int i = 0; i < pieceEnCours.nbCases; i++)
+
+        DessinePiece(pieceEnCours);
+
+        
+        bool placeTrouvee = false;
+        
+        for (int L = 0; L < NB_LIGNES && !placeTrouvee; L++) {
+            for (int C = 0; C < NB_COLONNES && !placeTrouvee; C++) {
+                
+                bool okPourPlacement = true;
+                for (int i = 0; i < pieceEnCours.nbCases; i++) {
+                    int ligneTest = L + pieceEnCours.cases[i].ligne;
+                    int colTest = C + pieceEnCours.cases[i].colonne;
+                    
+                    if (ligneTest < 0 || ligneTest >= NB_LIGNES || 
+                        colTest < 0 || colTest >= NB_COLONNES || 
+                        tab[ligneTest][colTest] != VIDE) 
+                    {
+                        okPourPlacement = false;
+                        break;
+                    }
+                }
+                
+                if (okPourPlacement) {
+                    placeTrouvee = true; 
+                }
+            }
+        }
+
+        if (!placeTrouvee) {
+            printf("(THREAD PIECE) Fin de partie detectee !\n");
+            setMessage("GAME OVER !", false);
+            pthread_exit(NULL); 
+        }
+        
+
+        bool pieceValidee = false;
+
+        while(!pieceValidee)
         {
-            int L = casesInserees[i].ligne;
-            int C = casesInserees[i].colonne;
-            tab[L][C] = BRIQUE;
+            
+            pthread_mutex_lock(&mutexCasesInserees);
+            nbCasesInserees = 0;
+            pthread_mutex_unlock(&mutexCasesInserees);
+
+            
+            pthread_mutex_lock(&mutexCasesInserees);
+            while(nbCasesInserees < pieceEnCours.nbCases)
+            {
+                pthread_cond_wait(&condCasesInserees, &mutexCasesInserees);
+            }
+            pthread_mutex_unlock(&mutexCasesInserees);
+
+            
+            TriCases(casesInserees, 0, pieceEnCours.nbCases - 1);
+
+            
+            int Lmin = casesInserees[0].ligne;
+            int Cmin = casesInserees[0].colonne;
+
+            for(int i = 1; i < pieceEnCours.nbCases; i++)
+            {
+                if(casesInserees[i].ligne < Lmin) Lmin = casesInserees[i].ligne;
+                if(casesInserees[i].colonne < Cmin) Cmin = casesInserees[i].colonne;
+            }
+
+            CASE temp[NB_CASES];
+
+            for(int i = 0; i < pieceEnCours.nbCases; i++)
+            {
+                temp[i].ligne = casesInserees[i].ligne - Lmin;
+                temp[i].colonne = casesInserees[i].colonne - Cmin;
+            }
+
+            
+            bool ok = true;
+            for(int i = 0; i < pieceEnCours.nbCases; i++)
+            {
+                if(temp[i].ligne != pieceEnCours.cases[i].ligne ||
+                   temp[i].colonne != pieceEnCours.cases[i].colonne)
+                {
+                    ok = false;
+                    break;
+                }
+            }
+            if(ok)
+            {
+                for(int i = 0; i < pieceEnCours.nbCases; i++)
+                {
+                    int L = casesInserees[i].ligne;
+                    int C = casesInserees[i].colonne;
+                    tab[L][C] = BRIQUE;
+                    DessineBrique(L, C, false);
+                }
+
+                
+                pthread_mutex_lock(&mutexTraitement);
+                traitementEnCours = true;
+                DessineVoyant(8,10,BLEU);
+                pthread_mutex_unlock(&mutexTraitement);
+
+                
+                for(int i = 0; i < pieceEnCours.nbCases; i++)
+                {
+                    int L = casesInserees[i].ligne;
+                    int C = casesInserees[i].colonne;
+                    pthread_kill(tabThreadCase[L][C], SIGUSR1);
+                }
+
+                
+                pthread_mutex_lock(&mutexTraitement);
+                while(traitementEnCours)
+                {
+                    pthread_cond_wait(&condTraitement, &mutexTraitement);
+                }
+                pthread_mutex_unlock(&mutexTraitement);
+
+                
+                pthread_mutex_lock(&mutexScore);
+                score += pieceEnCours.nbCases;
+                MAJScore = true;
+                pthread_cond_signal(&condScore);
+                pthread_mutex_unlock(&mutexScore);
+
+                pieceValidee = true;
+            }
+            else
+            {
+                
+                pthread_mutex_lock(&mutexCasesInserees);
+                for(int i = 0; i < pieceEnCours.nbCases; i++)
+                {
+                    int L = casesInserees[i].ligne;
+                    int C = casesInserees[i].colonne;
+                    tab[L][C] = VIDE;       
+                    EffaceCarre(L, C);      
+                }
+                pthread_mutex_unlock(&mutexCasesInserees);
+            }
         }
-        for(int i = 0; i < pieceEnCours.nbCases; i++)
-        {
-          int L = casesInserees[i].ligne;
-          int C = casesInserees[i].colonne;
-          pthread_kill(tabThreadCase[L][C], SIGUSR1);
-        }
-        pthread_mutex_lock(&mutexScore);
-        score += pieceEnCours.nbCases; 
-        MAJScore = true;            
-        pthread_cond_signal(&condScore);
-        pthread_mutex_unlock(&mutexScore);
     }
 
     return NULL;
 }
+
 void* threadEvent(void* arg)
 {
+    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
     EVENT_GRILLE_SDL event;
 
     while(1)
     {
-        event = ReadEvent();  
+        event = ReadEvent();
+
         if(event.type == CROIX)
         {
             FermetureFenetreGraphique();
             exit(0);
         }
+
         if(event.type == CLIC_GAUCHE)
         {
             int L = event.ligne;
             int C = event.colonne;
-            if(tab[L][C] == VIDE)
+
+            
+            if(C >= NB_COLONNES)
             {
-                pthread_mutex_lock(&mutexCasesInserees);
+                pthread_mutex_lock(&mutexTraitement);
+
+                DessineVoyant(8,10,ROUGE);
+
+                struct timespec t = {0,400000000};
+                nanosleep(&t,NULL);
+
+                if(traitementEnCours)
+                    DessineVoyant(8,10,BLEU);
+                else
+                    DessineVoyant(8,10,VERT);
+
+                pthread_mutex_unlock(&mutexTraitement);
+                continue;
+            }
+
+            pthread_mutex_lock(&mutexTraitement);
+
+            
+            if(traitementEnCours || tab[L][C] != VIDE)
+            {
+                DessineVoyant(8,10,ROUGE);
+
+                struct timespec t = {0,400000000};
+                nanosleep(&t,NULL);
+
+                if(traitementEnCours)
+                    DessineVoyant(8,10,BLEU);
+                else
+                    DessineVoyant(8,10,VERT);
+
+                pthread_mutex_unlock(&mutexTraitement);
+                continue;
+            }
+
+            pthread_mutex_unlock(&mutexTraitement);
+
+            
+            pthread_mutex_lock(&mutexCasesInserees);
+
+            if(nbCasesInserees < pieceEnCours.nbCases)
+            {
                 tab[L][C] = DIAMANT;
+
                 casesInserees[nbCasesInserees].ligne = L;
                 casesInserees[nbCasesInserees].colonne = C;
                 nbCasesInserees++;
-                DessineDiamant(L,C,pieceEnCours.couleur);
+
+                DessineDiamant(L, C, pieceEnCours.couleur);
+
                 pthread_cond_signal(&condCasesInserees);
-                pthread_mutex_unlock(&mutexCasesInserees);
             }
+
+            pthread_mutex_unlock(&mutexCasesInserees);
         }
+
         if(event.type == CLIC_DROIT)
         {
             pthread_mutex_lock(&mutexCasesInserees);
+
             for(int i = 0; i < nbCasesInserees; i++)
             {
                 int L = casesInserees[i].ligne;
                 int C = casesInserees[i].colonne;
+
                 tab[L][C] = VIDE;
                 EffaceCarre(L, C);
             }
+
             nbCasesInserees = 0;
 
             pthread_mutex_unlock(&mutexCasesInserees);
         }
     }
+
     return NULL;
 }
+
 void* threadScore(void* arg) {
     while (1) {
         pthread_mutex_lock(&mutexScore);
@@ -450,8 +689,18 @@ void* threadScore(void* arg) {
         pthread_mutex_unlock(&mutexScore);
     }
 }
+
 void* threadCase(void* arg)
 {
+    
+    pthread_setspecific(clefCase, arg); 
+    
+
+    sigset_t mask;
+    sigemptyset(&mask);  
+    sigaddset(&mask, SIGUSR1);
+    pthread_sigmask(SIG_UNBLOCK, &mask, NULL);
+
     CASE* maCase = (CASE*)arg;
 
     while(1)
@@ -462,8 +711,7 @@ void* threadCase(void* arg)
         int C = maCase->colonne;
 
         pthread_mutex_lock(&mutexAnalyse);
-
-      
+        
         bool complete = true;
         for(int i = 0; i < 9; i++)
         {
@@ -546,13 +794,14 @@ void* threadCase(void* arg)
 
     return NULL;
 }
+
 void* threadNettoyeur(void* arg)
 {
     while(1)
     {
         pthread_mutex_lock(&mutexAnalyse);
 
-        while(nbAnalyses < pieceEnCours.nbCases)
+        while(pieceEnCours.nbCases == 0 || nbAnalyses < pieceEnCours.nbCases)
         {
             pthread_cond_wait(&condAnalyse, &mutexAnalyse);
         }
@@ -561,21 +810,30 @@ void* threadNettoyeur(void* arg)
         {
             nbAnalyses = 0;
             pthread_mutex_unlock(&mutexAnalyse);
+
+            
+            pthread_mutex_lock(&mutexTraitement);
+            traitementEnCours = false;
+            DessineVoyant(8,10,VERT);
+            pthread_cond_signal(&condTraitement);
+            pthread_mutex_unlock(&mutexTraitement);
+
             continue;
         }
 
         pthread_mutex_unlock(&mutexAnalyse);
 
-        
         struct timespec t;
         t.tv_sec = 2;
         t.tv_nsec = 0;
+        pthread_mutex_lock(&mutexTraitement);
+        DessineVoyant(8,10,BLEU);
+        pthread_mutex_unlock(&mutexTraitement);
         nanosleep(&t, NULL);
 
         pthread_mutex_lock(&mutexAnalyse);
 
         int nbSuppr = 0;
-
         
         for(int i = 0; i < nbLignesCompletes; i++)
         {
@@ -587,7 +845,6 @@ void* threadNettoyeur(void* arg)
             }
             nbSuppr++;
         }
-
         
         for(int i = 0; i < nbColonnesCompletes; i++)
         {
@@ -599,7 +856,6 @@ void* threadNettoyeur(void* arg)
             }
             nbSuppr++;
         }
-
         
         for(int i = 0; i < nbCarresComplets; i++)
         {
@@ -643,7 +899,6 @@ void* threadNettoyeur(void* arg)
         {
             msg = "Quadruple Combo";
         }
-
         
         pthread_mutex_lock(&mutexScore);
 
@@ -659,15 +914,17 @@ void* threadNettoyeur(void* arg)
 
         pthread_cond_signal(&condScore);
         pthread_mutex_unlock(&mutexScore);
-
         
         if(msg != NULL)
         {
             setMessage(msg, true);
         }
+        
+        
+      pthread_mutex_lock(&mutexTraitement);
+      traitementEnCours = false;
+      DessineVoyant(8,10,VERT);
+      pthread_cond_signal(&condTraitement);
+      pthread_mutex_unlock(&mutexTraitement);
     }
-
-    return NULL;
 }
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
